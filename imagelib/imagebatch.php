@@ -10,7 +10,7 @@ if(!$SYMB_UID){
 
 // Get collections list
 $collList = array();
-$sql = <<< EOD
+$collectionPermissionSql = <<< EOD
 select distinct c.collid, c.collectionname
 from omcollections c
 inner join userroles r on c.collid = r.tablepk
@@ -107,7 +107,7 @@ EOD;
 							<select name="collection" required>
 								<?php
 									$sqlConn = MySQLiConnectionFactory::getCon("readonly");
-									if ($res = $sqlConn->query($sql)) {
+									if ($res = $sqlConn->query($collectionPermissionSql)) {
 										while($coll = $res->fetch_assoc()) {
 											echo '<option value="' . $coll['collid'] .'">' . $coll['collectionname'] . '</option>';
 										}
@@ -129,7 +129,7 @@ EOD;
 				</table>
 			</form>
 
-			<ul>
+			<ul style="list-style: none;">
 			<?php
 				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
 
@@ -157,28 +157,27 @@ EOD;
 
 						if ($zipSuccess) {
 
-							// List archive's files
-							echo "<li>Found Files:<ul>";
+							// Process files
+							echo "<li><ul>";
 							for ($i = 0; $i < $zip->numFiles; $i++) {
-								$zipMemberName = basename($zip->getNameIndex($i));
-								echo "<li>" . $zipMemberName . "</li>";
+								// Extract file
+								$zipMemberName = $zip->getNameIndex($i);
+								echo "<li>Extracting " . $zipMemberName . "...</li>";
+								$zip->extractTo($targetDir, $zipMemberName);
+								$zipMemberName = basename($zipMemberName);
+
+								// Process file
+								echo "<li>Processing " . $zipMemberName . "...</li><br>";
+
+								// Log completed file
 								array_push($uploadedFiles, $targetDir . '/' . $zipMemberName);
 							}
 							echo "</ul></li>";
 
-							// Extract files
-							$zip->extractTo($targetDir);
+							// Clean up
 							$zip->close();
 							unlink($zipLocal);
-
-							// TODO: Process Images
-							foreach ($uploadedFiles as $imgFile) {
-								echo "<li>Processing " . $imgFile . "...</li>";
-								unlink($imgFile);
-							}
-
 							$result = "<li><b>Success!</b></li>";
-
 						}
 					}
 
