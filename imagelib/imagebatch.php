@@ -69,6 +69,10 @@ EOD;
 				padding-left: 1em;
 				padding-right: 1em;
 			}
+
+			ul {
+				list-style: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -129,7 +133,7 @@ EOD;
 				</table>
 			</form>
 
-			<ul style="list-style: none;">
+			<ul>
 			<?php
 				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
 
@@ -156,7 +160,6 @@ EOD;
 						$uploadedFiles = array();
 
 						if ($zipSuccess) {
-
 							// Process files
 							echo "<li><ul>";
 							for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -166,8 +169,31 @@ EOD;
 								$zip->extractTo($targetDir, $zipMemberName);
 								$zipMemberName = basename($zipMemberName);
 
-								// Process file
-								echo "<li>Processing " . $zipMemberName . "...</li><br>";
+								// Extract catalogNumber
+								echo "<li>Processing " . $zipMemberName . "...<ul>";
+								$catalogNumber = explode("_", $zipMemberName)[0];
+								echo "<li>Catalog number is $catalogNumber</li>";
+								$catalogSearchSql = "SELECT occid, sciname FROM omoccurrences where catalogNumber = '$catalogNumber' AND collid = " . $_POST['collection'];;
+
+								// Find existing occurrence
+								$assocOccurrence = null;
+								$sqlConn = MySQLiConnectionFactory::getCon("readonly");
+								if ($res = $sqlConn->query($catalogSearchSql)) {
+									$assocOccurrence = $res->fetch_assoc();
+									$res->close();
+								}
+								$sqlConn->close();
+
+								// Update existing
+								if ($assocOccurrence !== null) {
+									echo "<li>Found associated occurrence: " . $assocOccurrence["sciname"] . "</li>";
+								}
+								// Insert skeleton
+								else {
+
+								}
+
+								echo "</ul></li>";
 
 								// Log completed file
 								array_push($uploadedFiles, $targetDir . '/' . $zipMemberName);
