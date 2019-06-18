@@ -1,0 +1,307 @@
+/* Modify styles within this file to override styles within base.css file 
+ * 
+ **/
+body{
+	width: 80%;
+	min-width:1075px;
+	margin-top:0px;
+	font-family: Verdana, Geneva, sans-serif;
+	background-color:#f4efdd;
+}
+
+/*Main table framework*/
+#maintable{
+	width: 100%;
+	background-color:#FFFFFF;
+	border:1px solid #333333;
+}
+
+#maintable td{
+
+}
+
+td.header{
+	color:#FFFFFF;
+	background-color:#FFFFFF;
+	text-align:left;
+	padding:0px;
+	padding-bottom:0px;
+	border-bottom:1px solid #333333;
+}
+
+td.header a{
+
+}
+
+td.header a:hover{
+
+}
+
+td.middleleft{
+}
+
+td.middleleftnomenu{
+}
+
+td.middlecenter{
+	padding:0px;
+	background-color: #FFFFFF;
+}
+
+td.middleright{
+}
+
+td.footer{
+}
+
+/*Left menu components*/
+div.menu {
+	background-color:   white;
+	margin:				15px;
+	border:   			1px solid #CCCCFF;
+	padding-bottom:   	25px;
+	overflow:   		hidden;
+	width:   			150px;
+	border-radius:		0.5em 0.5em 1.5em 0.5em;
+	-moz-border-radius:	0.5em 0.5em 1.5em 0.5em;
+	-khtml-border-radius: 0.5em 0.5em 1.5em 0.5em;
+}
+
+div.menuheader{
+	background-color:   #C0C0C0;
+	font-family:   		Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size:   		13px;
+	color:   			white;
+	overflow:   		hidden;
+	text-align:   		center;
+	padding:   			3px;
+	margin:			   	0px; 
+}
+
+div.menuheader a{
+
+}
+
+div.menuheader a:hover {
+
+}
+
+div.menusubheader{
+
+}
+
+div.menusubheader a{
+
+}
+
+div.menusubheader a:hover {
+
+}
+
+div.menuitem {
+
+}
+
+div.menuitem a {
+	color: #669999;
+}
+
+div.menuitem a:hover {
+	color: 	#00008B;
+}
+
+/*Central div in the middle center table div */
+#innertext{
+	font-size: 12px;
+	min-height:400px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	padding-top: 10px;
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-bottom: 15px;
+}
+
+#innertext a{
+
+}
+#innertext a:hover{
+
+}
+
+div.navpath {
+	padding-top: 8px;
+	padding-bottom: 0px;
+	padding-left: 10px;
+	margin-bottom: 0px;
+}
+
+/* Image thumbnails   */
+div.tndiv{
+
+}
+
+div.tnimg{
+
+}
+
+div.tnimg a{
+
+}
+
+div.tnimg img{
+
+}	
+
+/*Misc general items*/
+table{
+
+}
+
+h1{
+	font-family: Georgia, Times, 'Times New Roman', serif;
+	font-weight: normal;
+}
+
+h2{
+	font-family: Georgia, Times, 'Times New Roman', serif;
+	font-weight: normal;
+}
+
+h3{
+	font-family: Georgia, Times, 'Times New Roman', serif;
+	font-weight: normal;
+}
+
+#top_navbar{
+	clear:both;
+	height:32px;
+	color:#FFFFFF;
+	background-image:url(images/menu_bkg_bl.png);
+	background-repeat:repeat-x;
+	background-position:top;
+	background-color:#000000;
+}
+#right_navbarlinks{
+	clear:both;
+	font-size:11px;
+	float:right;
+	color:#FFFFFF;
+	margin-top:9px;
+}
+#right_navbarlinks a{
+	color:#FFFFFF;
+}
+ul#hor_dropdown{
+	list-style:none;
+	float:left;
+	position:relative;
+	font-size:12px;
+	width:auto;
+	height:32px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding-left:0px;
+	background-image:url(images/menu_bkg_bl.png);
+	background-repeat:repeat-x;
+	background-position:top;
+	background-color:#c2c2c2;
+}
+ul#hor_dropdown li{		
+	float:left;
+	position:relative;
+	padding:0;
+	margin:0;
+}
+ul#hor_dropdown a{
+	display:block;
+	color:#FFFFFF;
+	text-decoration:none;
+	padding-top:8px;
+	padding-bottom:10px;
+	padding-left:10px;
+	padding-right:10px;
+	background-image: url(images/menu_bkg_bl_l.png), url(images/menu_bkg_bl_r.png);
+    background-position: left top, right top;
+    background-repeat: no-repeat, no-repeat;
+}
+ul#hor_dropdown a:hover{
+	background-image: url(images/menu_bkg_or_l.png), url(images/menu_bkg_or.png), url(images/menu_bkg_or_r.png);
+    background-position: left top, top, right top;
+    background-repeat: no-repeat, repeat-x, no-repeat;
+	color:#FFFFFF;
+	padding-top:8px;
+	padding-bottom:10px;
+	padding-left:10px;
+	padding-right:10px;
+}
+/* Submenu */
+ul#hor_dropdown ul {
+	list-style:none;
+	position:absolute;
+	left:-9999px;
+	top:-9999px;
+	background-color:#dcdcdc;
+	z-index:1000;
+}
+ul#hor_dropdown ul li{
+	float:none;
+}
+ul#hor_dropdown ul a{
+	white-space:nowrap;
+}
+ul#hor_dropdown li:hover ul {
+	left:0;
+	top:32px;
+	padding:0px;
+	z-index:1000;
+}
+ul#hor_dropdown li:hover ul a {
+	padding:5px;
+	color:#FFFFFF;
+	text-decoration:none;
+	text-indent:8px;
+	padding-right:8px;
+	background-image: none;
+	background-color:#1e3444;
+	z-index:1000;
+}
+ul#hor_dropdown li:hover ul li a:hover { 
+	background:#B56C09; 
+}
+ul#hor_dropdown li ul li ul {
+	display: none;
+}
+ul#hor_dropdown li ul li:hover ul {
+	left:100%;
+	top:0;
+	display: block;
+	padding:0px;
+	z-index:1000;
+}
+ul#hor_dropdown li ul li:hover ul a {
+	padding:5px;
+	text-decoration:none;
+	text-indent:8px;
+	padding-right:8px;
+	background-image: none;
+	background-color:#1e3444;
+	z-index:1000;
+}
+ul#hor_dropdown li ul li:hover ul li a:hover { 
+	background:#B56C09; 
+}
+
+#slideshowcontainer{
+	border: 2px solid black;
+	border-radius:10px;
+	padding:10px;
+	background-color:white;
+}
+
+.scanfooter{
+	padding:0px;
+	background-color: #FFFFFF;
+}
