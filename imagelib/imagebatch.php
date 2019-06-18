@@ -131,46 +131,54 @@ EOD;
 
 			<ul>
 			<?php
-				// Validation
-				$zipTypes = array('application/zip', 'application/x-zip-compressed', 'multipart/x-zip', 'application/x-compressed');
-				$zipFileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-				$zipMimeType = $_FILES['file']['type'];
-				$zipBasename = basename($_FILES['file']['name']);
+				if($_SERVER['REQUEST_METHOD'] === 'POST' && defined($_FILES) && array_key_exists('file', $_FILES)) {
 
-				if($_SERVER['REQUEST_METHOD'] === 'POST' && $zipFileExt === 'zip' && in_array($zipMimeType, $zipTypes)) {
-					$targetDir = $SERVER_ROOT . '/temp/images';
-					$zipLocal = $targetDir . '/' . $zipBasename;
+					// Validation
+					$zipFileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+					$zipMimeType = $_FILES['file']['type'];
+					$zipBasename = basename($_FILES['file']['name']);
+					$zipTypes = array(
+						'application/zip',
+						'application/x-zip-compressed',
+						'multipart/x-zip',
+						'application/x-compressed'
+					);
 
-					echo "<li>Uploading $zipBasename...</li>";
-					move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
-					$zip = new ZipArchive();
-					$zipSuccess = $zip->open($zipLocal);
-					$uploadedFiles = array();
+					if ($zipFileExt === 'zip' && in_array($zipMimeType, $zipTypes)) {
+						$targetDir = $SERVER_ROOT . '/temp/images';
+						$zipLocal = $targetDir . '/' . $zipBasename;
 
-					if ($zipSuccess) {
+						echo "<li>Uploading $zipBasename...</li>";
+						move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
+						$zip = new ZipArchive();
+						$zipSuccess = $zip->open($zipLocal);
+						$uploadedFiles = array();
 
-						// List archive's files
-						echo "<li>Found Files:<ul>";
-						for ($i = 0; $i < $zip->numFiles; $i++) {
-							$zipMemberName = basename($zip->getNameIndex($i));
-							echo "<li>" . $zipMemberName . "</li>";
-							array_push($uploadedFiles, $targetDir . '/' . $zipMemberName);
+						if ($zipSuccess) {
+
+							// List archive's files
+							echo "<li>Found Files:<ul>";
+							for ($i = 0; $i < $zip->numFiles; $i++) {
+								$zipMemberName = basename($zip->getNameIndex($i));
+								echo "<li>" . $zipMemberName . "</li>";
+								array_push($uploadedFiles, $targetDir . '/' . $zipMemberName);
+							}
+							echo "</ul></li>";
+
+							// Extract files
+							$zip->extractTo($targetDir);
+							$zip->close();
+							unlink($zipLocal);
+
+							// TODO: Process Images
+							foreach ($uploadedFiles as $imgFile) {
+								echo "<li>Processing " . $imgFile . "...</li>";
+								unlink($imgFile);
+							}
+
+							echo "<li><b>Success!</b></li>";
+
 						}
-						echo "</ul></li>";
-
-						// Extract files
-						$zip->extractTo($targetDir);
-						$zip->close();
-						unlink($zipLocal);
-
-						// TODO: Process Images
-						foreach ($uploadedFiles as $imgFile) {
-							echo "<li>Processing " . $imgFile . "...</li>";
-							unlink($imgFile);
-						}
-
-						echo "<li><b>Success!</b></li>";
-
 					} else {
 
 						echo "<li><b>Invalid zip archive!</b></li>";
