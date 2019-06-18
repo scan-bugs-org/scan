@@ -99,7 +99,7 @@ EOD;
 				onsubmit="return formValidate();"
 				method="post"
 				enctype="multipart/form-data"
-				action=<?php echo $CLIENT_ROOT . "/misc/imagebatch.php"?>>
+				action=<?php echo $CLIENT_ROOT . "/imagelib/imagebatch.php"?>>
 				<table>
 					<tr>
 						<td style="text-align: right;"><label for="collection">Collection:</label></td>
@@ -131,9 +131,10 @@ EOD;
 
 			<ul>
 			<?php
-				if($_SERVER['REQUEST_METHOD'] === 'POST' && defined($_FILES) && array_key_exists('file', $_FILES)) {
+				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
 
 					// Validation
+					$result = "<li><b>Invalid zip archive!</b></li>";
 					$zipFileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 					$zipMimeType = $_FILES['file']['type'];
 					$zipBasename = basename($_FILES['file']['name']);
@@ -143,15 +144,15 @@ EOD;
 						'multipart/x-zip',
 						'application/x-compressed'
 					);
+					echo "<li>Uploading $zipBasename...</li>";
 
 					if ($zipFileExt === 'zip' && in_array($zipMimeType, $zipTypes)) {
 						$targetDir = $SERVER_ROOT . '/temp/images';
 						$zipLocal = $targetDir . '/' . $zipBasename;
 
-						echo "<li>Uploading $zipBasename...</li>";
 						move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
 						$zip = new ZipArchive();
-						$zipSuccess = $zip->open($zipLocal);
+						$zipSuccess = $zip->open($zipLocal, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP;
 						$uploadedFiles = array();
 
 						if ($zipSuccess) {
@@ -176,14 +177,12 @@ EOD;
 								unlink($imgFile);
 							}
 
-							echo "<li><b>Success!</b></li>";
+							$result = "<li><b>Success!</b></li>";
 
 						}
-					} else {
-
-						echo "<li><b>Invalid zip archive!</b></li>";
-
 					}
+
+					echo $result;
 				}
 			?>
 			</ul>
