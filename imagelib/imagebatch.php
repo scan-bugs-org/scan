@@ -157,7 +157,6 @@ EOD;
 						move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
 						$zip = new ZipArchive();
 						$zipSuccess = $zip->open($zipLocal, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP;
-						$uploadedFiles = array();
 
 						if ($zipSuccess) {
 							// Process files
@@ -171,9 +170,11 @@ EOD;
 
 								// Extract catalogNumber
 								echo "<li>Processing " . $zipMemberName . "...<ul>";
+								$collId = $_POST['collection'];
 								$catalogNumber = explode("_", $zipMemberName)[0];
 								echo "<li>Catalog number is $catalogNumber</li>";
-								$catalogSearchSql = "SELECT occid, sciname FROM omoccurrences where catalogNumber = '$catalogNumber' AND collid = " . $_POST['collection'];;
+
+								$catalogSearchSql = "SELECT occid, sciname FROM omoccurrences where catalogNumber = '$catalogNumber' AND collid = $collId";
 
 								// Find existing occurrence
 								$assocOccurrence = null;
@@ -184,19 +185,16 @@ EOD;
 								}
 								$sqlConn->close();
 
-								// Update existing
-								if ($assocOccurrence !== null) {
-									echo "<li>Found associated occurrence: " . $assocOccurrence["sciname"] . "</li>";
+								// Insert a skeleton occurrence
+								if ($assocOccurrence === null) {
+									echo "<li>Catalog number not found. Creating skeleton occurrence...</li>";
 								}
-								// Insert skeleton
+								// Just print a status message
 								else {
-
+									echo "<li>Found associated occurrence: " . $assocOccurrence["sciname"] . "</li>";
 								}
 
 								echo "</ul></li>";
-
-								// Log completed file
-								array_push($uploadedFiles, $targetDir . '/' . $zipMemberName);
 							}
 							echo "</ul></li>";
 
