@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   nginx:
@@ -26,9 +26,14 @@ services:
     command: "--default-authentication-plugin=mysql_native_password"
     volumes:
       - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf
-      - ./data:/var/lib/mysql
+      - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d
+      - symbiota-db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: symbiota
     ports:
       - 3308:3306
+
+volumes:
+  symbiota-db:
+    name: symbiota-db
