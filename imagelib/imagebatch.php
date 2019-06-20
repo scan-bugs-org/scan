@@ -10,7 +10,6 @@ if(!$SYMB_UID){
 }
 
 // Get collections list
-$collList = array();
 $collectionPermissionSql = <<< EOD
 select distinct c.collid, c.collectionname
 from omcollections c
@@ -143,7 +142,7 @@ EOD;
 			<?php
 				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
 
-          $uploader = new ImageArchiveUploader($_FILES['file']);
+          $uploader = new ImageArchiveUploader($_POST['collection'], $_FILES['file']);
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";
 
