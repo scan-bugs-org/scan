@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/ImageArchiveUploader.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 //Use following ONLY if login is required
@@ -73,6 +74,11 @@ EOD;
 			ul {
 				list-style: none;
 			}
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
 		</style>
 	</head>
 	<body>
@@ -133,82 +139,86 @@ EOD;
 				</table>
 			</form>
 
-			<ul>
+			<p>
 			<?php
 				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
 
+          $uploader = new ImageArchiveUploader($_FILES['file']);
+          $log = $uploader->getLogContent();
+          echo "<pre>$log</pre>";
+
 					// Validation
-					$result = "<li><b>Invalid zip archive!</b></li>";
-					$zipFileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-					$zipMimeType = $_FILES['file']['type'];
-					$zipBasename = basename($_FILES['file']['name']);
-					$zipTypes = array(
-						'application/zip',
-						'application/x-zip-compressed',
-						'multipart/x-zip',
-						'application/x-compressed'
-					);
-					echo "<li>Uploading $zipBasename...</li>";
-
-					if ($zipFileExt === 'zip' && in_array($zipMimeType, $zipTypes)) {
-						$targetDir = $SERVER_ROOT . '/temp/images';
-						$zipLocal = $targetDir . '/' . $zipBasename;
-
-						move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
-						$zip = new ZipArchive();
-						$zipSuccess = $zip->open($zipLocal, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP;
-
-						if ($zipSuccess) {
-							// Process files
-							echo "<li><ul>";
-							for ($i = 0; $i < $zip->numFiles; $i++) {
-								// Extract file
-								$zipMemberName = $zip->getNameIndex($i);
-								echo "<li>Extracting " . $zipMemberName . "...</li>";
-								$zip->extractTo($targetDir, $zipMemberName);
-								$zipMemberName = basename($zipMemberName);
-
-								// Extract catalogNumber
-								echo "<li>Processing " . $zipMemberName . "...<ul>";
-								$collId = $_POST['collection'];
-								$catalogNumber = explode("_", $zipMemberName)[0];
-								echo "<li>Catalog number is $catalogNumber</li>";
-
-								$catalogSearchSql = "SELECT occid, sciname FROM omoccurrences where catalogNumber = '$catalogNumber' AND collid = $collId";
-
-								// Find existing occurrence
-								$assocOccurrence = null;
-								$sqlConn = MySQLiConnectionFactory::getCon("readonly");
-								if ($res = $sqlConn->query($catalogSearchSql)) {
-									$assocOccurrence = $res->fetch_assoc();
-									$res->close();
-								}
-								$sqlConn->close();
-
-								// Insert a skeleton occurrence
-								if ($assocOccurrence === null) {
-									echo "<li>Catalog number not found. Creating skeleton occurrence...</li>";
-								}
-								// Just print a status message
-								else {
-									echo "<li>Found associated occurrence: " . $assocOccurrence["sciname"] . "</li>";
-								}
-
-								echo "</ul></li>";
-							}
-							echo "</ul></li>";
-
-							// Clean up
-							$zip->close();
-							unlink($zipLocal);
-							$result = "<li><b>Success!</b></li>";
-						}
-					}
-
-					echo $result;
+					// $result = "<li><b>Invalid zip archive!</b></li>";
+					// $zipFileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+					// $zipMimeType = $_FILES['file']['type'];
+					// $zipBasename = basename($_FILES['file']['name']);
+					// $zipTypes = array(
+					// 	'application/zip',
+					// 	'application/x-zip-compressed',
+					// 	'multipart/x-zip',
+					// 	'application/x-compressed'
+					// );
+					// echo "<li>Uploading $zipBasename...</li>";
+          //
+					// if ($zipFileExt === 'zip' && in_array($zipMimeType, $zipTypes)) {
+					// 	$targetDir = $SERVER_ROOT . '/temp/images';
+					// 	$zipLocal = $targetDir . '/' . $zipBasename;
+          //
+					// 	move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
+					// 	$zip = new ZipArchive();
+					// 	$zipSuccess = $zip->open($zipLocal, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP;
+          //
+					// 	if ($zipSuccess) {
+					// 		// Process files
+					// 		echo "<li><ul>";
+					// 		for ($i = 0; $i < $zip->numFiles; $i++) {
+					// 			// Extract file
+					// 			$zipMemberName = $zip->getNameIndex($i);
+					// 			echo "<li>Extracting " . $zipMemberName . "...</li>";
+					// 			$zip->extractTo($targetDir, $zipMemberName);
+					// 			$zipMemberName = basename($zipMemberName);
+          //
+					// 			// Extract catalogNumber
+					// 			echo "<li>Processing " . $zipMemberName . "...<ul>";
+					// 			$collId = $_POST['collection'];
+					// 			$catalogNumber = explode("_", $zipMemberName)[0];
+					// 			echo "<li>Catalog number is $catalogNumber</li>";
+          //
+					// 			$catalogSearchSql = "SELECT occid, sciname FROM omoccurrences where catalogNumber = '$catalogNumber' AND collid = $collId";
+          //
+					// 			// Find existing occurrence
+					// 			$assocOccurrence = null;
+					// 			$sqlConn = MySQLiConnectionFactory::getCon("readonly");
+					// 			if ($res = $sqlConn->query($catalogSearchSql)) {
+					// 				$assocOccurrence = $res->fetch_assoc();
+					// 				$res->close();
+					// 			}
+					// 			$sqlConn->close();
+          //
+					// 			// Insert a skeleton occurrence
+					// 			if ($assocOccurrence === null) {
+					// 				echo "<li>Catalog number not found. Creating skeleton occurrence...</li>";
+					// 			}
+					// 			// Just print a status message
+					// 			else {
+					// 				echo "<li>Found associated occurrence: " . $assocOccurrence["sciname"] . "</li>";
+					// 			}
+          //
+					// 			echo "</ul></li>";
+					// 		}
+					// 		echo "</ul></li>";
+          //
+					// 		// Clean up
+					// 		$zip->close();
+					// 		unlink($zipLocal);
+					// 		$result = "<li><b>Success!</b></li>";
+					// 	}
+					// }
+          //
+					// echo $result;
 				}
 			?>
-			</ul>
+      </p>
 		</div>
 		<?php
 			include($SERVER_ROOT.'/footer.php');
