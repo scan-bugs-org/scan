@@ -144,6 +144,7 @@ EOD;
 
           $uploader = new ImageArchiveUploader($_POST['collection']);
 					$uploader->load($_FILES['file']);
+					
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";
 

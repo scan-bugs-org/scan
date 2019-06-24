@@ -38,6 +38,15 @@ class ImageArchiveUploader {
   private $logFile;
   private $conn;
   private $collId;
+  private $imgPathPrefix;
+  private $imgUrlPrefix;
+
+  private $tnPixWidth = 200;
+  private $tnPixHeight = 70;
+  private $webPixWidth = 1600;
+  private $lgPixWidth = 3168;
+  private $webFileSizeLimit = 300000;
+  private $jpgCompression= 90;
 
   /**
    * Creates a new archive uploader
@@ -52,6 +61,36 @@ class ImageArchiveUploader {
     $this->tmpZipPath = '';
     $this->logFile = $GLOBALS['LOG_PATH'] . '/' . 'batchupload.log';
     $this->resetLog();
+
+    // Set image paths
+    $this->imgPathPrefix = $GLOBALS['IMAGE_ROOT_PATH'];
+    $this->imgUrlPrefix = $GLOBALS['IMAGE_ROOT_URL'];
+
+    if (substr($this->imgPathPrefix, -1) !== '/') {
+      $this->imgPathPrefix .= '/';
+    }
+
+    if (substr($this->imgUrlPrefix, -1) !== '/') {
+      $this->imgUrlPrefix .= '/';
+    }
+
+    $imgSubPath = 'misc/'.date('Ym').'/';
+    $this->imgPathPrefix .= $imgSubPath;
+    $this->imgUrlPrefix .= $imgSubPath;
+
+    // Set image size (in px and in filesize)
+    if(array_key_exists('imgTnWidth', $GLOBALS)){
+      $this->tnPixWidth = $GLOBALS['imgTnWidth'];
+    }
+    if(array_key_exists('imgWebWidth', $GLOBALS)){
+      $this->webPixWidth = $GLOBALS['imgWebWidth'];
+    }
+    if(array_key_exists('imgLgWidth', $GLOBALS)){
+      $this->lgPixWidth = $GLOBALS['imgLgWidth'];
+    }
+    if(array_key_exists('imgFileSizeLimit', $GLOBALS)){
+      $this->webFileSizeLimit = $GLOBALS['imgFileSizeLimit'];
+    }
 
     ini_set('memory_limit', '512M');
   }
@@ -75,14 +114,13 @@ class ImageArchiveUploader {
   }
 
   public function load($postFile) {
-    // Unzip the archive
+    // Upload the archive
     if ($this->loadZip($postFile)) {
       $fileName = basename($postFile['name']);
       $this->logMsg("info", "Extracting $fileName...");
-
-      // Images here?
-
       $this->logBreak();
+
+      // Unzip / process the images
       $this->loadImages();
 
     } else {
@@ -185,15 +223,7 @@ class ImageArchiveUploader {
         $this->logMsg('info', "Catalog number is $catalogNumber");
 
         $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-
-        // Found associated occurence
-        if ($assocOccId !== -1) {
-          $this->logMsg('info', "Uploading image to associated occurrence...");
-        }
-        // Create skeleton record
-        else {
-          $this->logMsg('info', "Creating skeleton record...");
-        }
+        $this->processImage($tmpImgPath, $assocOccId);
 
       } else {
         $this->logMsg('warn', 'File is invalid, skipping...');
@@ -202,6 +232,131 @@ class ImageArchiveUploader {
       unlink($tmpImgPath);
       $this->logBreak();
     }
+  }
+
+  /**
+   * Create thumbnail, large image and assoicate with a record
+   * @param  string  $imgPath    Path to the source image
+   * @param  integer $assocOccId An assocated occurrence, or -1 if none exists
+   * @return bool                Whether the operation was completed successfully
+   */
+  private function processImage($imgPath, $assocOccId=-1) {
+    $success = true;
+
+    if (!file_exists($this->imgPathPrefix) && !mkdir($this->imgPathPrefix, 0777, true)) {
+			$this->logMsg('error', "Unable to create directory: $this->imgPathPrefix");
+			$success = false;
+    }
+
+    if ($success) {
+      // Set target paths
+      $tnFile = pathinfo($imgPath, PATHINFO_FILENAME) . '_tn.jpg';
+
+      $imgTargetPath = $this->imgPathPrefix . basename($imgPath);
+      $imgTnPath = $this->imgPathPrefix . $tnFile;
+      $imgTnUrl = $this->imgUrlPrefix . $tnFile;
+
+      // Create the thumbnail
+      if (!file_exists($imgTnPath)) {
+        if ($this->createImage($imgPath, $imgTnPath, $this->tnPixWidth)) {
+          $proto = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://';
+          $this->logMsg('info', "Created thumbnail at $proto" . $_SERVER['SERVER_NAME'] . $imgTnUrl);
+        } else {
+          $this->logMsg('error', "Failed to create thumbnail at $imgTnUrl");
+          $success = false;
+        }
+      } else {
+        $this->logMsg('warn', "$imgTnUrl exists, refusing to overwrite");
+      }
+    }
+
+    // Create the large image
+    if ($success) {
+      // list($sourceWidth, $sourceHeight, $sourceType, $sourceAttr) = getimagesize($sourcePath);
+      // if ($sourceWidth > )
+    }
+
+    // Create a skeleton record
+    if ($success && $assocOccId === -1) {
+      $this->logMsg('info', "Linking to skeleton record...");
+
+    }
+    // Upload to existing record
+    else if ($success) {
+      $this->logMsg('info', "Linking image to associated occurrence...");
+    }
+
+    return $success;
+  }
+
+  private function createImage($sourcePath, $targetPath, $targetWidth) {
+    $success = true;
+    list($sourceWidth, $sourceHeight, $sourceType, $sourceAttr) = getimagesize($sourcePath);
+
+    // Use ImageMagick to resize images
+    if(array_key_exists('USE_IMAGE_MAGICK', $GLOBALS) && $GLOBALS['USE_IMAGE_MAGICK'] === 1) {
+      $cmdStdout = false;
+      if($targetWidth < 300){
+        $cmdStdout = system("convert $sourcePath -thumbnail $targetWidth" . 'x' . ($targetWidth * 1.5) . " $targetPath");
+      }
+      else{
+        $cmdStdout = system("convert $sourcePath -resize $targetWidth" . 'x' . ($targetWidth * 1.5) . " -quality $this->jpegCompression $targetPath");
+      }
+
+      if (!$cmdStdout) {
+        $success = false;
+        $this->logMsg("Error processing image with ImageMagick");
+      }
+    }
+    // GD is installed and working
+    else if(extension_loaded('gd') && function_exists('gd_info')) {
+      $targetHeight = round($sourceHeight * ($targetWidth / $sourceWidth));
+      if ($targetWidth > $sourceWidth) {
+        $targetWidth = $sourceWidth;
+        $targetHeight = $sourceHeight;
+      }
+
+      $sourceGdImg = '';
+      $format = '';
+
+      if($sourceType === 'gif'){
+        $sourceGdImg = imagecreatefromgif($sourcePath);
+        $format = 'image/gif';
+      }
+      else if($sourceType === 'png'){
+        $sourceGdImg = imagecreatefrompng($sourcePath);
+        $format = 'image/png';
+      }
+      else {
+        //JPG assumed
+        $sourceGdImg = imagecreatefromjpeg($sourcePath);
+        $format = 'image/jpeg';
+      }
+
+      if ($sourceGdImg === '') {
+        $success = false;
+        $this->logMsg('error', 'Error processing image with GD');
+      }
+
+      if ($success) {
+        $tmpImg = imagecreatetruecolor($targetWidth, $targetHeight);
+        imagecopyresized($tmpImg, $sourceGdImg, 0, 0, 0, 0, $targetWidth, $targetHeight, $sourceWidth, $sourceHeight);
+        $success = imagejpeg($tmpImg, $targetPath, $this->jpgCompression);
+        imagedestroy($tmpImg);
+      }
+    }
+    // Neither ImageMagick nor GD are installed
+    else{
+      $this->logMsg('error', 'No appropriate image handler for image conversions');
+      $success = false;
+    }
+
+    if($success && !file_exists($targetPath)){
+      $this->logMsg("info", "An error occurred creating $targetPath");
+      $success = false;
+    }
+
+    return $success;
   }
 
   /**
