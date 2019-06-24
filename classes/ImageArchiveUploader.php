@@ -33,7 +33,7 @@ class ImageArchiveUploader {
   );
 
   private $zipFile;
-  private $tmpImgPaths;
+  private $createdImgPaths;
   private $tmpZipPath;
   private $logFile;
   private $conn;
@@ -43,32 +43,17 @@ class ImageArchiveUploader {
    * Creates a new archive uploader
    * @param _FILE[member] $postFile The zip archive POST file
    */
-  public function __construct($collId, $postFile){
+  public function __construct($collId){
     $this->conn = MySQLiConnectionFactory::getCon("write");
 
     $this->collId = $collId;
-    $this->zipFile = new ZipArchive();
-    $this->tmpImgPaths = array();
+    $this->zipFile = null;
+    $this->createdImgPaths = array();
     $this->tmpZipPath = '';
     $this->logFile = $GLOBALS['LOG_PATH'] . '/' . 'batchupload.log';
-
-    if (file_exists($this->logFile)) {
-      unlink($this->logFile);
-    }
+    $this->resetLog();
 
     ini_set('memory_limit', '512M');
-
-    // Unzip the archive
-    if ($this->loadZip($postFile)) {
-      $fileName = basename($postFile['name']);
-      $this->logMsg("info", "$fileName uploaded successfully, extracting...");
-      $this->logBreak();
-
-      $this->loadImages();
-
-    } else {
-      $this->logMsg("error", "Invalid Zip Archive");
-    }
   }
 
   /**
@@ -79,12 +64,29 @@ class ImageArchiveUploader {
       $this->conn->close();
       $this->conn = null;
     }
-    $this->zipFile->close();
-    foreach ($this->tmpImgPaths as $path) {
-      unlink($path);
+
+    if ($this->zipFile !== null) {
+      $this->zipFile->close();
     }
-    if ($this->tmpZipLocation !== '') {
-      unlink($this->tmpZipLocation);
+
+    if ($this->tmpZipPath !== '') {
+      unlink($this->tmpZipPath);
+    }
+  }
+
+  public function load($postFile) {
+    // Unzip the archive
+    if ($this->loadZip($postFile)) {
+      $fileName = basename($postFile['name']);
+      $this->logMsg("info", "Extracting $fileName...");
+
+      // Images here?
+
+      $this->logBreak();
+      $this->loadImages();
+
+    } else {
+      $this->logMsg("error", "Invalid Zip Archive");
     }
   }
 
@@ -115,10 +117,29 @@ class ImageArchiveUploader {
    * @return string The content of batchupload.log in $GLOBALS['LOG_PATH']
    */
   public function getLogContent() {
-    $fh = fopen($this->logFile, 'r');
-    $contents = fread($fh, filesize($this->logFile));
-    fclose($fh);
+    $contents = '';
+    $fileSize = filesize($this->logFile);
+
+    if ($fileSize > 0) {
+      $fh = fopen($this->logFile, 'r');
+      $contents = fread($fh, $fileSize);
+      fclose($fh);
+    }
+
     return $contents;
+  }
+
+  /**
+   * Deletes and re-creates the log file
+   */
+  public function resetLog() {
+    // Delete the current log if it exists
+    if (file_exists($this->logFile)) {
+      unlink($this->logFile);
+    }
+
+    // Create a new log file
+    fclose(fopen($this->logFile, 'w'));
   }
 
   /**
@@ -128,17 +149,19 @@ class ImageArchiveUploader {
    * @return bool Whether the validation/load was successful
    */
   private function loadZip($postFile) {
-    $fileExt = strtolower(pathinfo($postFile['name'], PATHINFO_EXTENSION));
-    $mimeType = ImageArchiveUploader::getMimeType($postFile['tmp_name']);
-    $localFile = '';
+    $this->tmpZipPath = $GLOBALS['TEMP_DIR_ROOT'] . '/' . basename($postFile['name']);
+    move_uploaded_file($postFile['tmp_name'], $this->tmpZipPath);
 
-    if ($fileExt === 'zip' && in_array($mimeType, ImageArchiveUploader::ZIP_MIME_TYPES)) {
-      $this->tmpZipLocation = $GLOBALS['TEMP_DIR_ROOT'] . '/' . basename($postFile['name']);
-      move_uploaded_file($postFile['tmp_name'], $this->tmpZipLocation);
-      if ($this->zipFile->open($this->tmpZipLocation, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP) {
+    if ($this->validateZipFile($this->tmpZipPath)) {
+      $this->zipFile = new ZipArchive();
+      if ($this->zipFile->open($this->tmpZipPath, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP) {
+        $this->logMsg('info', "Upload for " . basename($this->tmpZipPath) . " succeeded");
         return true;
       }
     }
+
+    $this->logMsg('error', "Upload failed for " . basename($this->tmpZipPath));
+    $this->zipFile = null;
     return false;
   }
 
@@ -149,46 +172,98 @@ class ImageArchiveUploader {
   private function loadImages() {
     for ($i = 0; $i < $this->zipFile->numFiles; $i++) {
       $success = true;
+
       $zipMemberName = $this->zipFile->getNameIndex($i);
-      $zipMemberExt = strtolower(pathinfo($zipMemberName, PATHINFO_EXTENSION));
+      $this->logMsg('info', "Found " . basename($zipMemberName));
 
-      if (in_array($zipMemberExt, ImageArchiveUploader::IMG_EXTS)) {
-        $this->zipFile->extractTo($GLOBALS['TEMP_DIR_ROOT'], $zipMemberName);
-        $tmpImgPath = $GLOBALS['TEMP_DIR_ROOT'] . '/' . $zipMemberName;
-        $zipMemberType = ImageArchiveUploader::getMimeType($tmpImgPath);
+      $this->logMsg('info', "Extracting " . basename($zipMemberName) . "...");
+      $this->zipFile->extractTo($GLOBALS['TEMP_DIR_ROOT'], $zipMemberName);
+      $tmpImgPath = $GLOBALS['TEMP_DIR_ROOT'] . '/' . $zipMemberName;
 
-        // Process image
-        if (in_array($zipMemberType, ImageArchiveUploader::IMG_MIME_TYPES)) {
-          $this->logMsg('info', "Found " . basename($zipMemberName));
-          array_push($this->tmpImgPaths, $tmpImgPath);
+      if ($this->validateImageFile($tmpImgPath)) {
+        $catalogNumber = explode('_', basename($tmpImgPath))[0];
+        $this->logMsg('info', "Catalog number is $catalogNumber");
 
-          $catalogNumber = explode('_', basename($tmpImgPath))[0];
-          $this->logMsg('info', "Catalog number is $catalogNumber");
+        $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
 
-          // Found associated occurence
-          $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-          if ($assocOccId !== -1) {
-            $this->logMsg('info', "Uploading image to associated occurrence ($assocOccId)...");
-          }
-          // Create skeleton record
-          else {
-            $this->logMsg('info', "Creating skeleton record...");
-          }
-
-        } else {
-          unlink($tmpImgPath);
-          $success = false;
+        // Found associated occurence
+        if ($assocOccId !== -1) {
+          $this->logMsg('info', "Uploading image to associated occurrence...");
         }
+        // Create skeleton record
+        else {
+          $this->logMsg('info', "Creating skeleton record...");
+        }
+
       } else {
-        $success = false;
+        $this->logMsg('warn', 'File is invalid, skipping...');
       }
 
-      if (!$success) {
-        $this->logMsg('error', basename($zipMemberName) . " is not a valid image file");
-      }
-
+      unlink($tmpImgPath);
       $this->logBreak();
     }
+  }
+
+  /**
+   * Checks the extension, mimeType, and naming scheme of the given image file
+   * @param  string $filePath Path to the file to validate
+   * @return bool             Whether all checks passed
+   */
+  private function validateImageFile($filePath) {
+    $success = true;
+    $fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $fileBaseName = basename($filePath);
+
+    // First, check file ext
+    if (!in_array($fileExt, ImageArchiveUploader::IMG_EXTS)) {
+      $success = false;
+      $this->logMsg('warn', "Invalid extension for $fileBaseName");
+    }
+
+    // Then mime type
+    if ($success) {
+      $mimeType = ImageArchiveUploader::getMimeType($filePath);
+      if (!in_array($mimeType, ImageArchiveUploader::IMG_MIME_TYPES)) {
+        $success = false;
+        $this->logMsg('warn', "$fileBaseName is not an image file or may be corrupted");
+      }
+    }
+
+    // Check for underscore
+    if ($success && strpos($fileBaseName, '_') === false) {
+      $success = false;
+      $this->logMsg('warn', "$fileBaseName's name should contain an underscore");
+    }
+
+    return $success;
+  }
+
+  /**
+   * Checks the extension, mimeType, and naming scheme of the given zip file
+   * @param  string $filePath Path to the file to validate
+   * @return bool             Whether all checks passed
+   */
+  private function validateZipFile($filePath) {
+    $success = true;
+    $fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $fileBaseName = basename($filePath);
+
+    // Extension
+    if ($fileExt !== 'zip') {
+      $success = false;
+      $this->logMsg('error', "Invalid extension for $fileBaseName");
+    }
+
+    // Then mime type
+    if ($success) {
+      $mimeType = ImageArchiveUploader::getMimeType($filePath);
+      if (!in_array($mimeType, ImageArchiveUploader::ZIP_MIME_TYPES)) {
+        $success = false;
+        $this->logMsg('error', "$fileBaseName is not a zip file or may be corrupted");
+      }
+    }
+
+    return $success;
   }
 
   /**
@@ -212,7 +287,9 @@ class ImageArchiveUploader {
    * @return int occid for the catalogNumber
    */
   private function getOccurrenceForCatalogNumber($catalogNumber) {
-    $sql = "SELECT occid, sciname FROM omoccurrences WHERE collid = $this->collId AND catalognumber = '$catalogNumber' LIMIT 1";
+    $sql = "SELECT occid, sciname FROM omoccurrences " .
+      "WHERE collid = $this->collId " .
+      "AND catalognumber = '$catalogNumber' LIMIT 1";
     $result = -1;
     if ($res = $this->conn->query($sql)) {
       $row = $res->fetch_assoc();

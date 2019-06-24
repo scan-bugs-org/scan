@@ -142,7 +142,8 @@ EOD;
 			<?php
 				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
 
-          $uploader = new ImageArchiveUploader($_POST['collection'], $_FILES['file']);
+          $uploader = new ImageArchiveUploader($_POST['collection']);
+					$uploader->load($_FILES['file']);
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";
 
