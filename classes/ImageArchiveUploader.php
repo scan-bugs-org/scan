@@ -117,7 +117,7 @@ class ImageArchiveUploader {
     // Upload the archive
     if ($this->loadZip($postFile)) {
       $fileName = basename($postFile['name']);
-      $this->logMsg("info", "Extracting $fileName...");
+      $this->logMsg("info", "Starting image processing...");
       $this->logBreak();
 
       // Unzip / process the images
@@ -229,7 +229,9 @@ class ImageArchiveUploader {
         $this->logMsg('warn', 'File is invalid, skipping...');
       }
 
-      unlink($tmpImgPath);
+      if (file_exists($tmpImgPath)) {
+        unlink($tmpImgPath);
+      }
       $this->logBreak();
     }
   }
@@ -250,19 +252,40 @@ class ImageArchiveUploader {
 
     if ($success) {
       // Set target paths
-      $tnFile = pathinfo($imgPath, PATHINFO_FILENAME) . '_tn.jpg';
-
       $imgTargetPath = $this->imgPathPrefix . basename($imgPath);
+      $imgTargetUrl = $this->imgUrlPrefix . basename($imgPath);
+
+      // Copy image to permanent spot
+      if (file_exists($imgTargetPath)) {
+        $this->logMsg('warn', "$imgTargetUrl already exists, refusing to overwrite");
+        $imgPath = $imgTargetPath;
+      } else if (rename($imgPath, $imgTargetPath)) {
+        $this->logMsg('info', "Image imported successfully");
+        $imgPath = $imgTargetPath;
+      } else {
+        $this->logMsg('error', "Failed to import image");
+        $success = false;
+      }
+    }
+
+    // Create the thumbnail
+    if ($success) {
+      // Set target paths
+      $tnFile = pathinfo($imgPath, PATHINFO_FILENAME) . '_tn.jpg';
+      $lgFile = pathinfo($imgPath, PATHINFO_FILENAME) . '_lg.jpg';
+
       $imgTnPath = $this->imgPathPrefix . $tnFile;
       $imgTnUrl = $this->imgUrlPrefix . $tnFile;
 
-      // Create the thumbnail
+      $imgLgPath = $this->imgPathPrefix . $lgFile;
+      $imgLgUrl = $this->imgUrlPrefix . $lgFile;
+
       if (!file_exists($imgTnPath)) {
         if ($this->createImage($imgPath, $imgTnPath, $this->tnPixWidth)) {
           $proto = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://';
-          $this->logMsg('info', "Created thumbnail at $proto" . $_SERVER['SERVER_NAME'] . $imgTnUrl);
+          $this->logMsg('info', "Thumbnail created successfully");
         } else {
-          $this->logMsg('error', "Failed to create thumbnail at $imgTnUrl");
+          $this->logMsg('error', "Failed to create thumbnail");
           $success = false;
         }
       } else {
@@ -272,8 +295,25 @@ class ImageArchiveUploader {
 
     // Create the large image
     if ($success) {
-      // list($sourceWidth, $sourceHeight, $sourceType, $sourceAttr) = getimagesize($sourcePath);
-      // if ($sourceWidth > )
+      list($sourceWidth, $sourceHeight, $sourceType, $sourceAttr) = getimagesize($imgPath);
+      $sourceFileSize = filesize($imgPath);
+
+      // If source image is sufficiently to wide or too big to serve as a web image,
+      // scale it down
+      if ($sourceWidth > $this->lgPixWidth * 1.2 || $sourceFileSize > $this->webFileSizeLimit) {
+        if ($this->createImage($imgPath, $imgLgPath, $this->imgLgWidth)) {
+          $this->logMsg('info', "Large image created successfully");
+        } else {
+          $this->logMsg('error', "Failed to create large image");
+          $success = false;
+        }
+      }
+      // Otherwise, just use the original as the large image
+      else {
+        $this->logMsg('info', "Using original as large image");
+        $imgLgPath = $imgTargetPath;
+        $imgLgUrl = $imgTargetUrl;
+      }
     }
 
     // Create a skeleton record
