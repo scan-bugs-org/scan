@@ -951,6 +951,13 @@ CREATE TABLE `guidoccurrences` (
 DROP TABLE IF EXISTS `imageannotations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+SET @old_sql_mode := @@sql_mode;
+SET @new_sql_mode := @old_sql_mode ;
+SET @new_sql_mode := TRIM(BOTH ',' FROM REPLACE(CONCAT(',',@new_sql_mode,','),',NO_ZERO_DATE,'  ,','));
+SET @new_sql_mode := TRIM(BOTH ',' FROM REPLACE(CONCAT(',',@new_sql_mode,','),',NO_ZERO_IN_DATE,',','));
+SET @@sql_mode := @new_sql_mode ;
+
 CREATE TABLE `imageannotations` (
   `tid` int(10) unsigned DEFAULT NULL,
   `imgid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -962,6 +969,9 @@ CREATE TABLE `imageannotations` (
   CONSTRAINT `FK_resourceannotations_imgid` FOREIGN KEY (`imgid`) REFERENCES `images` (`imgid`),
   CONSTRAINT `FK_resourceannotations_tid` FOREIGN KEY (`tid`) REFERENCES `taxa` (`TID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+SET @@sql_mode := @old_sql_mode;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2313,6 +2323,7 @@ CREATE TABLE `omoccurrences` (
   `duplicateQuantity` int(10) unsigned DEFAULT NULL,
   `labelProject` varchar(50) DEFAULT NULL,
   `dateEntered` datetime DEFAULT NULL,
+  `attributes` varchar(255) DEFAULT NULL,
   `dateLastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`occid`) USING BTREE,
   UNIQUE KEY `Index_collid` (`collid`,`dbpk`),

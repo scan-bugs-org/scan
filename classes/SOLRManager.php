@@ -81,6 +81,14 @@ class SOLRManager extends OccurrenceManager{
 
     public function getRecordArr($pageRequest,$cntPerPage){
         global $SOLR_URL;
+        
+        $canReadRareSpp = false;
+        if($GLOBALS['USER_RIGHTS']){
+            if($GLOBALS['IS_ADMIN'] || array_key_exists("CollAdmin", $GLOBALS['USER_RIGHTS']) || array_key_exists("RareSppAdmin", $GLOBALS['USER_RIGHTS']) || array_key_exists("RareSppReadAll", $GLOBALS['USER_RIGHTS'])){
+                $canReadRareSpp = true;
+            }
+        }
+
 	    $returnArr = Array();
 		$solrURL = '';
         $solrURLpre = '';

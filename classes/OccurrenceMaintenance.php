@@ -33,6 +33,7 @@ class OccurrenceMaintenance {
 		$status = true;
 
 		if($this->verbose) $this->outputMsg('Updating null families of family rank identifications... ',1);
+		error_log('Updating null families of family rank identifications... ');
 		$sql1 = 'SELECT occid FROM omoccurrences WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
 		$rs1 = $this->conn->query($sql1);
 		$occidArr1 = array();
@@ -54,6 +55,7 @@ class OccurrenceMaintenance {
 		unset($occidArr1);
 		
 		if($this->verbose) $this->outputMsg('Updating null scientific names of family rank identifications... ',1);
+		error_log('Updating null scientific names of family rank identifications... ');
 		$sql1 = 'SELECT occid FROM omoccurrences WHERE family IS NOT NULL AND sciname IS NULL';
 		$rs1 = $this->conn->query($sql1);
 		$occidArr2 = array();
@@ -73,6 +75,7 @@ class OccurrenceMaintenance {
 		unset($occidArr2);
 		
 		if($this->verbose) $this->outputMsg('Indexing valid scientific names (e.g. populating tidinterpreted)... ',1);
+		error_log('Indexing valid scientific names (e.g. populating tidinterpreted)... ');
 		$sql1 = 'SELECT o.occid FROM omoccurrences o INNER JOIN taxa t ON o.sciname = t.sciname '.
 			'WHERE o.collid IN('.$collId.') AND o.TidInterpreted IS NULL';
 		$rs1 = $this->conn->query($sql1);
@@ -95,6 +98,7 @@ class OccurrenceMaintenance {
 		unset($occidArr3);
 		
 		if($this->verbose) $this->outputMsg('Updating and indexing occurrence images... ',1);
+		error_log('Updating and indexing occurrence images... ');
 		$sql1 = 'SELECT o.occid FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
 			'WHERE o.collid IN('.$collId.') AND (i.tid IS NULL) AND (o.tidinterpreted IS NOT NULL)';
 		$rs1 = $this->conn->query($sql1);
@@ -117,6 +121,7 @@ class OccurrenceMaintenance {
 		unset($occidArr4);
 		
 		if($this->verbose) $this->outputMsg('Updating null families using taxonomic thesaurus... ',1);
+		error_log('Updating null families using taxonomic thesaurus... ');
 		$sql1 = 'SELECT o.occid FROM omoccurrences o INNER JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
 			'WHERE o.collid IN('.$collId.') AND (ts.taxauthid = 1) AND (ts.family IS NOT NULL) AND (o.family IS NULL)';
 		$rs1 = $this->conn->query($sql1);
@@ -138,8 +143,9 @@ class OccurrenceMaintenance {
 		}
 		unset($occidArr5);
 
-		#Updating records with null author
+        #Updating records with null author
 		if($this->verbose) $this->outputMsg('Updating null scientific authors using taxonomic thesaurus... ',1);
+		error_log('Updating null scientific authors using taxonomic thesaurus... ');
 		$sql1 = 'SELECT o.occid FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid '.
 			'WHERE o.scientificNameAuthorship IS NULL AND t.author IS NOT NULL LIMIT 5000 ';
 		$rs1 = $this->conn->query($sql1);

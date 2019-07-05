@@ -5,6 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get -y --no-install-recommends install \
+        imagemagick \
         php7.3-mysql \
         php7.3-pgsql \
         php7.3-gd \

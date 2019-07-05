@@ -8,19 +8,37 @@ class OccurrenceGeorefTools {
 	private $collName;
 	private $managementType;
 	private $qryVars = array();
-	private $errorStr;
+    private $errorStr;
+    private $logFile;
 
 	function __construct($type = 'write') {
-		$this->conn = MySQLiConnectionFactory::getCon($type);
+        $this->conn = MySQLiConnectionFactory::getCon($type);
+        $this->logFile = $GLOBALS['SERVER_ROOT'] . '/content/logs/batchgeoref.log';
+
+        if (!file_exists($this->logFile)) {
+            $file = fopen($this->logFile, 'w');
+            fclose($file);
+        }
 	}
 
 	function __destruct(){
  		if(!($this->conn === false)) $this->conn->close();
-	}
+    }
 
-	public function getLocalityArr(){
+    public function logMsg($level, $msg) {
+        $file = fopen($this->logFile, 'a');
+        fwrite($file, '[' . date('Y-m-d G:i:s') . ']');
+        fwrite($file, '[' . strtoupper($level) . ']');
+        fwrite($file, '[' . $this->getCollName() . '] ');
+        fwrite($file, $msg);
+        fwrite($file, "\n");
+        fclose($file);
+    }
+
+    public function getLocalityArr(){
+        $this->logMsg('info', "Starting getLocalityArr...");
         global $BROADGEOREFERENCE;
-	    $retArr = array();
+        $retArr = array();
 		if($this->collStr){
 		    if($BROADGEOREFERENCE){
                 $sql = 'SELECT occid, country, stateprovince, county, municipality, IFNULL(locality,CONCAT_WS(", ",country,stateProvince,county,municipality,verbatimcoordinates)) AS locality, verbatimcoordinates ,decimallatitude, decimallongitude '.
@@ -127,12 +145,14 @@ class OccurrenceGeorefTools {
 			}
 			$rs->free();
 		}
-		//usort($retArr,array('OccurrenceGeorefTools', '_cmpLocCnt'));
+        //usort($retArr,array('OccurrenceGeorefTools', '_cmpLocCnt'));
+        $this->logMsg('info', "Finished getLocalityArr");
 		return $retArr;
 	}
 
 	public function updateCoordinates($geoRefArr){
-		global $paramsArr;
+        global $paramsArr;
+        $this->logMsg('info', "Starting updateCoordinates...");
 		if($this->collStr){
 			if(is_numeric($geoRefArr['decimallatitude']) && is_numeric($geoRefArr['decimallongitude'])){
 				set_time_limit(1000);
@@ -192,9 +212,11 @@ class OccurrenceGeorefTools {
 				}
 			}
 		}
+        $this->logMsg('info', "Finished updateCoordinates");
 	}
 
 	private function addOccurEdits($fieldName, $fieldValue, $occidStr){
+        $this->logMsg('info', "Starting addOccurEdits...");
 		//Temporary code needed for to test for new schema update
 		$hasEditType = false;
 		$rsTest = $this->conn->query('SHOW COLUMNS FROM omoccuredits WHERE field = "editType"');
@@ -210,9 +232,11 @@ class OccurrenceGeorefTools {
 			$this->errorStr = 'ERROR batch updating coordinates: '.$this->conn->error;
 			echo $this->errorStr;
 		}
+        $this->logMsg('info', "Finished addOccurEdits");
 	}
 
 	public function getCoordStatistics(){
+        $this->logMsg('info', "Starting getCoordStatistics...");
 		$retArr = array();
 		$totalCnt = 0;
 		$sql = 'SELECT COUNT(*) AS cnt '.
@@ -236,10 +260,12 @@ class OccurrenceGeorefTools {
 			$rs2->free();
 		}
 
+        $this->logMsg('info', "Finished getCoordStatistics");
 		return $retArr;
 	}
 
 	public function getGeorefClones($locality, $country, $state, $county, $searchType, $collid){
+        $this->logMsg('info', "Starting getGeorefClones...");
 		$occArr = array();
 		$sql = 'SELECT count(o.occid) AS cnt, o.decimallatitude, o.decimallongitude, o.coordinateUncertaintyInMeters, o.georeferencedby, o.locality '.
 			'FROM omoccurrences o ';
@@ -296,11 +322,13 @@ class OccurrenceGeorefTools {
 			$cnt++;
 		}
 		$rs->free();
+        $this->logMsg('info', "Finished getGeorefClones");
 		return $occArr;
 	}
 
 	//Setters and getters
 	public function setCollId($cid){
+        $this->logMsg('info', "Starting setCollId...");
 		if(preg_match('/^[\d,]+$/',$cid)){
             $this->collStr = $cid;
 			$sql = 'SELECT collectionname, managementtype FROM omcollections WHERE collid IN('.$cid.')';
@@ -311,6 +339,7 @@ class OccurrenceGeorefTools {
 			}
 			$rs->free();
 		}
+        $this->logMsg('info', "Finished setCollId");
 	}
 
 	public function setQueryVariables($k,$v){
@@ -323,8 +352,25 @@ class OccurrenceGeorefTools {
 
 	//Get data functions
 	public function getCountryArr(){
-		$retArr = array();
-		$sql = 'SELECT DISTINCT country FROM omoccurrences WHERE collid IN('.$this->collStr.')';
+        $this->logMsg('info', "Starting getCountryArr...");
+        $retArr = array();
+
+        if ($GLOBALS['SOLR_MODE']) {
+            $qStr = "select?q=collid:($this->collStr)&group=true&group.field=country&group.main=true&fl=country&wt=json&rows=-1&sort=country+asc";
+            $qUrl = $GLOBALS['SOLR_URL'] . '/' . $qStr;
+            $jsonRes = json_decode(file_get_contents($qUrl), true);
+            $countryArr = $jsonRes['response']['docs'];
+            for ($i = 0; $i < sizeof($countryArr); $i++) {
+                $cStr = trim($countryArr[$i]['country']);
+                if ($cStr) {
+                    array_push($retArr, $cStr);
+                }
+            }
+            $this->logMsg('info', 'Found ' . sizeof($retArr) . ' countries');
+            return $retArr;
+        }
+
+		$sql = 'SELECT country FROM omoccurrences WHERE collid IN('.$this->collStr.') AND country IS NOT NULL GROUP BY country';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$cStr = trim($r->country);
@@ -332,12 +378,30 @@ class OccurrenceGeorefTools {
 		}
 		$rs->free();
 		sort($retArr);
+        $this->logMsg('info', "Finished getCountryArr");
 		return $retArr;
 	}
 
 	public function getStateArr($countryStr = ''){
-		$retArr = array();
-		$sql = 'SELECT DISTINCT stateprovince FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
+        $this->logMsg('info', "Starting getStateArr...");
+        $retArr = array();
+
+        if ($GLOBALS['SOLR_MODE']) {
+            $qStr = "select?q=collid:($this->collStr)&group=true&group.field=StateProvince&group.main=true&fl=StateProvince&wt=json&rows=-1&sort=StateProvince+asc";
+            $qUrl = $GLOBALS['SOLR_URL'] . '/' . $qStr;
+            $jsonRes = json_decode(file_get_contents($qUrl), true);
+            $stateArr = $jsonRes['response']['docs'];
+            for ($i = 0; $i < sizeof($stateArr); $i++) {
+                $sStr = trim($stateArr[$i]['StateProvince']);
+                if ($sStr) {
+                    array_push($retArr, $sStr);
+                }
+            }
+            $this->logMsg('info', 'Found ' . sizeof($retArr) . ' states');
+            return $retArr;
+        }
+
+		$sql = 'SELECT stateprovince FROM omoccurrences WHERE collid IN('.$this->collStr.') AND stateprovince IS NOT NULL GROUP BY stateprovince';
 		/*if($countryStr){
 			$sql .= 'AND country = "'.$countryStr.'" ';
 		}*/
@@ -348,12 +412,34 @@ class OccurrenceGeorefTools {
 		}
 		$rs->free();
 		sort($retArr);
+        $this->logMsg('info', "Finished getStateArr");
 		return $retArr;
 	}
 
 	public function getCountyArr($countryStr = '',$stateStr = ''){
-		$retArr = array();
-		$sql = 'SELECT DISTINCT county FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
+        $this->logMsg('info', "Starting getCountyArr...");
+        $retArr = array();
+
+        if ($GLOBALS['SOLR_MODE']) {
+            $qStr = "select?q=collid:($this->collStr)";
+            if ($stateStr) {
+                $qStr .= '+AND+StateProvince:"' . $stateStr . '"';
+            }
+            $qStr .= "&group=true&group.field=county&group.main=true&fl=county&wt=json&rows=-1&sort=county+asc";
+            $qUrl = $GLOBALS['SOLR_URL'] . '/' . $qStr;
+            $jsonRes = json_decode(file_get_contents($qUrl), true);
+            $countyArr = $jsonRes['response']['docs'];
+            for ($i = 0; $i < sizeof($countyArr); $i++) {
+                $cStr = trim($countyArr[$i]['county']);
+                if ($cStr) {
+                    array_push($retArr, $cStr);
+                }
+            }
+            $this->logMsg('info', 'Found ' . sizeof($retArr) . ' counties');
+            return $retArr;
+        }
+
+		$sql = 'SELECT county FROM omoccurrences WHERE collid IN('.$this->collStr.') AND county IS NOT NULL GROUP BY county';
 		/*if($countryStr){
 			$sql .= 'AND country = "'.$countryStr.'" ';
 		}*/
@@ -368,12 +454,34 @@ class OccurrenceGeorefTools {
 		}
 		$rs->free();
 		sort($retArr);
+        $this->logMsg('info', "Finished getCountyArr");
 		return $retArr;
 	}
 
 	public function getMunicipalityArr($countryStr = '',$stateStr = ''){
-		$retArr = array();
-		$sql = 'SELECT DISTINCT municipality FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
+        $this->logMsg('info', "Starting getMunicipalityArr...");
+        $retArr = array();
+
+        if ($GLOBALS['SOLR_MODE']) {
+            $qStr = "select?q=collid:($this->collStr)";
+            if ($stateStr) {
+                $qStr .= '+AND+StateProvince:"' . $stateStr . '"';
+            }
+            $qStr .= "&group=true&group.field=municipality&group.main=true&fl=municipality&wt=json&rows=-1&sort=municipality+asc";
+            $qUrl = $GLOBALS['SOLR_URL'] . '/' . $qStr;
+            $jsonRes = json_decode(file_get_contents($qUrl), true);
+            $muniArr = $jsonRes['response']['docs'];
+            for ($i = 0; $i < sizeof($muniArr); $i++) {
+                $mStr = trim($muniArr[$i]['municipality']);
+                if ($mStr) {
+                    array_push($retArr, $mStr);
+                }
+            }
+            $this->logMsg('info', 'Found ' . sizeof($retArr) . ' municipalities');
+            return $retArr;
+        }
+
+		$sql = 'SELECT municipality FROM omoccurrences WHERE collid IN('.$this->collStr.') AND municipality IS NOT NULL GROUP BY municipality';
 		/*if($countryStr){
 			$sql .= 'AND country = "'.$countryStr.'" ';
 		}*/
@@ -388,18 +496,21 @@ class OccurrenceGeorefTools {
 		}
 		$rs->free();
 		sort($retArr);
+        $this->logMsg('info', "Finished getMunicipalityArr");
 		return $retArr;
 	}
 
 	public function getProcessingStatus(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT processingstatus FROM omoccurrences WHERE collid IN('.$this->collStr.')';
+        $this->logMsg('info', "Started getProcessingStatus...");
+		$sql = 'SELECT processingstatus FROM omoccurrences WHERE collid IN('.$this->collStr.') AND processingstatus IS NOT NULL GROUP BY processingstatus';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			if($r->processingstatus) $retArr[] = $r->processingstatus;
 		}
 		$rs->free();
 		sort($retArr);
+        $this->logMsg('info', "Finished getProcessingStatus");
 		return $retArr;
 	}
 

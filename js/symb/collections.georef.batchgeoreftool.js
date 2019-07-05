@@ -123,6 +123,10 @@ function updateLngDec(f){
 	f.decimallongitude.value = Math.round(lngDec*1000000)/1000000;
 }
 
+function logMsg(msg) {
+    console.log("[" + new Date().toLocaleString("en-US") + "] " + msg);
+}
+
 function verifyCoordUncertainty(inputObj){
 	if(!isNumeric(inputObj.value)){
 		alert("Coordinate Uncertainity can only contain numeric values");
@@ -130,6 +134,7 @@ function verifyCoordUncertainty(inputObj){
 }
 
 function geoLocateLocality(){
+    logMsg("Starting geoLocateLocality...");
 	var selObj = document.getElementById("locallist");
 	if(selObj.selectedIndex > -1){
 		var f = document.queryform;
@@ -143,9 +148,11 @@ function geoLocateLocality(){
 	else{
 		alert("Select a locality in list to open that record set in the editor");
 	}
+    logMsg("Finished geoLocateLocality");
 }
 
 function geoLocateUpdateCoord(latValue,lngValue,coordErrValue,footprintWKTValue){
+    logMsg("Starting geoLocateUpdateCoord...");
 	var f = document.georefform;
 	f.decimallatitude.value = latValue;
 	f.decimallongitude.value = lngValue;
@@ -163,9 +170,11 @@ function geoLocateUpdateCoord(latValue,lngValue,coordErrValue,footprintWKTValue)
 		baseStr = baseTokens[0]+"; ";
 	}
 	f.georeferencesources.value = baseStr+"GeoLocate";
+    logMsg("Finished geoLocateUpdateCoord");
 }
 
 function geoCloneTool(){
+    logMsg("Starting geoCloneTool...");
 	var selObj = document.getElementById("locallist");
 	if(selObj.selectedIndex > -1){
 		var f = document.queryform;
@@ -181,9 +190,11 @@ function geoCloneTool(){
 	else{
 		alert("Select a locality in list to open that record set in the editor");
 	}
+    logMsg("Finished geoCloneTool");
 }
 
 function analyseLocalityStr(){
+    logMsg("Starting analyseLocalityStr...");
 	var selObj = document.getElementById("locallist");
 	if(selObj.selectedIndex > -1){
 		var sourceStr = '';
@@ -300,9 +311,11 @@ function analyseLocalityStr(){
 	else{
 		alert("Select a locality");
 	}
+    logMsg("Finished analyseLocalityStr");
 }
 
 function openFirstRecSet(){
+    logMsg("Starting openFirstRecSet...");
 	var collId = document.georefform.collid.value;
 	var selObj = document.getElementById("locallist");
 	if(selObj.selectedIndex > -1){
@@ -313,9 +326,11 @@ function openFirstRecSet(){
 	else{
 		alert("Select a locality in list to open that record set in the editor");
 	}
+    logMsg("Finished openFirstRecSet");
 }
 
 function insertUtm(f) {
+    logMsg("Starting insertUtm...");
 	var zValue = f.utmzone.value.replace(/^\s+|\s+$/g,"");
 	var hValue = f.hemisphere.value;
 	var eValue = f.utmeast.value.replace(/^\s+|\s+$/g,"");
@@ -345,9 +360,11 @@ function insertUtm(f) {
 	else{
 		alert("Zone, Easting, and Northing fields must not be empty");
 	}
+    logMsg("Finished insertUtm");
 }
 
 function utm2LatLng(zValue, eValue, nValue, datum){
+    logMsg("Starting utm2LatLng...");
 	//Datum assumed to be  or WGS84
 	var d = 0.99960000000000004; // scale along long0
 	var d1 = 6378137; // Polar Radius
@@ -381,6 +398,7 @@ function utm2LatLng(zValue, eValue, nValue, datum){
 	var latValue = (d17 / Math.PI) * 180; // Breddegrad (N)
 	var d18 = ((d9 - ((1 + 2 * d6 + d7) * Math.pow(d9,3) ) / 6) + (((((5 - 2 * d7) + 28 * d6) - 3 * d7 * d7) + 8 * d3 + 24 * d6 * d6) * Math.pow(d9,5) ) / 120) / Math.cos(d14);
 	var lngValue = d11 + ((d18 / Math.PI) * 180); // Længdegrad (Ø)
+    logMsg("Finished utm2LatLng");
 	return latValue + "," + lngValue;
 
 }

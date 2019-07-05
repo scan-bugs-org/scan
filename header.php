@@ -77,6 +77,10 @@ if (top.frames.length!=0)
 					</li>
 					<li>
 						<a href="<?php echo $clientRoot; ?>/imagelib/search.php" >Images</a>
+            <ul>
+              <li><a href="<?php echo $clientRoot; ?>/imagelib/search.php" >Image Search</a></li>
+              <li><a href="<?php echo $clientRoot; ?>/imagelib/imagebatch.php" >Batch Upload</a></li>
+            </ul>
 					</li>
 					<li>
 						<a href="#" >Fauna Projects</a>
