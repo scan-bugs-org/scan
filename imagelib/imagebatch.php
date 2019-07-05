@@ -19,6 +19,16 @@ where (r.role = 'CollEditor' or r.role = 'CollAdmin') and u.uid = $SYMB_UID
 order by c.collectionname;
 EOD;
 
+$sqlConn = MySQLiConnectionFactory::getCon("readonly");
+$allowedCollections = array();
+if ($res = $sqlConn->query($collectionPermissionSql)) {
+	while($coll = $res->fetch_assoc()) {
+		array_push($allowedCollections, array("collid" => $coll['collid'], "collectionname" => $coll['collectionname']));
+	}
+	$res->close();
+}
+$sqlConn->close();
+
 ?>
 
 <html>
@@ -101,42 +111,50 @@ EOD;
 					unless directed to do so by the site administrator.
 				</p>
 			</b>
-			<form
-				name="batchImage"
-				id="batchImage"
-				class="container"
-				onsubmit="return formValidate();"
-				method="post"
-				enctype="multipart/form-data"
-				action=<?php echo $CLIENT_ROOT . "/imagelib/imagebatch.php"?>>
-				<table>
-					<tr>
-						<td style="text-align: right;"><label for="collection">Collection:</label></td>
-						<td>
-							<select name="collection" required>
-								<?php
-									$sqlConn = MySQLiConnectionFactory::getCon("readonly");
-									if ($res = $sqlConn->query($collectionPermissionSql)) {
-										while($coll = $res->fetch_assoc()) {
-											echo '<option value="' . $coll['collid'] .'">' . $coll['collectionname'] . '</option>';
+			<?php
+			if (sizeof($allowedCollections) > 0) {
+			?>
+				<form
+					name="batchImage"
+					id="batchImage"
+					class="container"
+					onsubmit="return formValidate();"
+					method="post"
+					enctype="multipart/form-data"
+					action=<?php echo $CLIENT_ROOT . "/imagelib/imagebatch.php"?>>
+					<table>
+						<tr>
+							<td style="text-align: right;"><label for="collection">Collection:</label></td>
+							<td>
+								<select name="collection" required>
+									<?php
+										foreach ($allowedCollections as $coll) {
+											echo '<option value="' . $coll["collid"] . '">' . $coll["collectionname"] . '</option>';
 										}
-										$res->close();
-									}
-									$sqlConn->close();
-								?>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td style="text-align: right;"><label for="file">Image Archive:</label></td>
-						<td><input type="file" name="file" required></td>
-					</tr>
-					<br>
-					<tr>
-						<td></td><td style="text-align: right;"><input type="submit" value="Submit"></td>
-					</tr>
-				</table>
-			</form>
+									?>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: right;"><label for="file">Image Archive:</label></td>
+							<td><input type="file" name="file" required></td>
+						</tr>
+						<br>
+						<tr>
+							<td></td>
+							<td style="text-align: right;">
+								<input type="submit" value="Submit">
+							</td>
+						</tr>
+					</table>
+				</form>
+			<?php
+			} else {
+			?>
+				<b style="color: red">You aren't a collection editor. Contact your collection administrator.</b>
+			<?php
+			}
+			?>
 
 			<p>
 			<?php
@@ -144,7 +162,7 @@ EOD;
 
           $uploader = new ImageArchiveUploader($_POST['collection']);
 					$uploader->load($_FILES['file']);
-					
+
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";
 
