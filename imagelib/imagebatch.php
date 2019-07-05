@@ -238,6 +238,15 @@ $sqlConn->close();
 				}
 			?>
       </p>
+
+			<a id="logfile" style="display: none;"></a>
+			<script>
+				const logFileDownloader = document.getElementById("logfile")
+				logFileDownloader.href = "data:text/plain;charset=utf-8;base64," + "<?php echo base64_encode($log); ?>";
+				logFileDownloader.download = "batchupload-" + Date.now() + ".log";
+				logFileDownloader.click();
+			</script>
+
 		</div>
 		<?php
 			include($SERVER_ROOT.'/footer.php');

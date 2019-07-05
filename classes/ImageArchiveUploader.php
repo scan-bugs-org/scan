@@ -1,6 +1,7 @@
 <?php
 
 include_once($GLOBALS['SERVER_ROOT'] . '/config/dbconnection.php');
+include_once($GLOBALS['SERVER_ROOT'] . '/classes/UuidFactory.php');
 
 /**
  * Utility for validating and uploading image zip files
@@ -32,6 +33,9 @@ class ImageArchiveUploader {
     'tif'
   );
 
+  const SQL_IMG_INSERT = "INSERT INTO images(occid, url, thumbnailurl, originalurl, owner) VALUES ";
+  const SQL_SKEL_INSERT = "INSERT INTO omoccurrences(collid, catalognumber) VALUES ";
+
   private $zipFile;
   private $createdImgPaths;
   private $tmpZipPath;
@@ -59,7 +63,7 @@ class ImageArchiveUploader {
     $this->zipFile = null;
     $this->createdImgPaths = array();
     $this->tmpZipPath = '';
-    $this->logFile = $GLOBALS['LOG_PATH'] . '/' . 'batchupload.log';
+    $this->logFile = $GLOBALS['LOG_PATH'] . '/' . 'batchupload-' . UuidFactory::getUuidV4() .'.log';
     $this->resetLog();
 
     // Set image paths
@@ -110,6 +114,10 @@ class ImageArchiveUploader {
 
     if ($this->tmpZipPath !== '') {
       unlink($this->tmpZipPath);
+    }
+
+    if (file_exists($this->logFile)) {
+      unlink($this->logFile);
     }
   }
 
@@ -223,7 +231,22 @@ class ImageArchiveUploader {
         $this->logMsg('info', "Catalog number is $catalogNumber");
 
         $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-        $this->processImage($tmpImgPath, $assocOccId);
+
+        // Create a skeleton record
+        if ($assocOccId === -1) {
+          $this->logMsg('info', "Creating to skeleton record...");
+          $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
+          if ($this->conn->query($sql) === TRUE) {
+            $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
+            $this->logMsg('info', "Created skeleton record with occid $assocOccId");
+          } else {
+            $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
+          }
+        }
+
+        if ($assocOccId !== -1) {
+          $this->processImage($tmpImgPath, $assocOccId);
+        }
 
       } else {
         $this->logMsg('warn', 'File is invalid, skipping...');
@@ -316,14 +339,10 @@ class ImageArchiveUploader {
       }
     }
 
-    // Create a skeleton record
-    if ($success && $assocOccId === -1) {
-      $this->logMsg('info', "Linking to skeleton record...");
-
-    }
     // Upload to existing record
-    else if ($success) {
-      $this->logMsg('info', "Linking image to associated occurrence...");
+    if ($success) {
+      $this->logMsg('info', "Linking image to occurrence...");
+
     }
 
     return $success;
@@ -491,8 +510,10 @@ class ImageArchiveUploader {
 
       if ($row !== null) {
         $result = $row['occid'];
-        $msg = "Found associated occurrence: " . $row['sciname'];
-        $this->logMsg("info", $msg);
+        if ($row['sciname'] != '') {
+          $msg = "Found associated occurrence: " . $row['sciname'];
+          $this->logMsg("info", $msg);
+        }
       }
 
       $res->close();
