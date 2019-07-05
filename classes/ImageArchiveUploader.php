@@ -34,7 +34,7 @@ class ImageArchiveUploader {
   );
 
   const SQL_IMG_INSERT = "INSERT INTO images(occid, url, thumbnailurl, originalurl, owner) VALUES ";
-  const SQL_SKEL_INSERT = "INSERT INTO omoccurrences(collid, catalognumber) VALUES ";
+  // const SQL_SKEL_INSERT = "INSERT INTO omoccurrences(collid, catalognumber) VALUES ";
 
   private $zipFile;
   private $createdImgPaths;
@@ -217,14 +217,20 @@ class ImageArchiveUploader {
    */
   private function loadImages() {
     for ($i = 0; $i < $this->zipFile->numFiles; $i++) {
-      $success = true;
 
       $zipMemberName = $this->zipFile->getNameIndex($i);
+
       $this->logMsg('info', "Found " . basename($zipMemberName));
 
       $this->logMsg('info', "Extracting " . basename($zipMemberName) . "...");
       $this->zipFile->extractTo($GLOBALS['TEMP_DIR_ROOT'], $zipMemberName);
       $tmpImgPath = $GLOBALS['TEMP_DIR_ROOT'] . '/' . $zipMemberName;
+
+      if (is_dir($tmpImgPath)) {
+        $this->logMsg('info', "$tmpImgPath is a directory. Skipping...");
+        $this->logBreak();
+        continue;
+      }
 
       if ($this->validateImageFile($tmpImgPath)) {
         $catalogNumber = explode('_', basename($tmpImgPath))[0];
@@ -234,17 +240,20 @@ class ImageArchiveUploader {
 
         // Create a skeleton record
         if ($assocOccId === -1) {
-          $this->logMsg('info', "Creating to skeleton record...");
-          $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
-          if ($this->conn->query($sql) === TRUE) {
-            $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-            $this->logMsg('info', "Created skeleton record with occid $assocOccId");
-          } else {
-            $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
-          }
-        }
-
-        if ($assocOccId !== -1) {
+          $this->logMsg('warn', "No occurrence for for catalog number $catalogNumber. Skipping...");
+          // TODO: Re-enable skeleton records when catalog number validation
+          // gets better
+          // $this->logMsg('info', "Creating to skeleton record...");
+          // $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
+          // if ($this->conn->query($sql) === TRUE) {
+          //   $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
+          //   $this->logMsg('info', "Created skeleton record with occid $assocOccId");
+          // } else {
+          //   $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
+          // }
+        } else {
+          // Upload to existing record
+          $this->logMsg('info', "Linking image to occurrence...");
           $this->processImage($tmpImgPath, $assocOccId);
         }
 
@@ -265,7 +274,7 @@ class ImageArchiveUploader {
    * @param  integer $assocOccId An assocated occurrence, or -1 if none exists
    * @return bool                Whether the operation was completed successfully
    */
-  private function processImage($imgPath, $assocOccId=-1) {
+  private function processImage($imgPath, $assocOccId) {
     $success = true;
 
     if (!file_exists($this->imgPathPrefix) && !mkdir($this->imgPathPrefix, 0777, true)) {
@@ -278,16 +287,23 @@ class ImageArchiveUploader {
       $imgTargetPath = $this->imgPathPrefix . basename($imgPath);
       $imgTargetUrl = $this->imgUrlPrefix . basename($imgPath);
 
-      // Copy image to permanent spot
-      if (file_exists($imgTargetPath)) {
-        $this->logMsg('warn', "$imgTargetUrl already exists, refusing to overwrite");
-        $imgPath = $imgTargetPath;
-      } else if (rename($imgPath, $imgTargetPath)) {
-        $this->logMsg('info', "Image imported successfully");
-        $imgPath = $imgTargetPath;
-      } else {
-        $this->logMsg('error', "Failed to import image");
+      // If this image has already been uploaded, quit right now
+      $existingOccImgs = $this->getImageUrlsForOccid($assocOccId);
+      if (in_array($imgTargetUrl, $existingOccImgs)) {
         $success = false;
+        $this->logMsg('warn', 'Image at url ' . $_SERVER['SERVER_NAME'] . $imgTargetUrl . "is already linked to occurrence $assocOccId. Skipping...");
+      } else {
+        // Copy image to permanent spot
+        if (file_exists($imgTargetPath)) {
+          $this->logMsg('warn', "$imgTargetUrl already exists, refusing to overwrite");
+          $imgPath = $imgTargetPath;
+        } else if (rename($imgPath, $imgTargetPath)) {
+          $this->logMsg('info', "Image imported successfully");
+          $imgPath = $imgTargetPath;
+        } else {
+          $this->logMsg('error', "Failed to import image");
+          $success = false;
+        }
       }
     }
 
@@ -339,10 +355,18 @@ class ImageArchiveUploader {
       }
     }
 
-    // Upload to existing record
+    // Insert into db
     if ($success) {
-      $this->logMsg('info', "Linking image to occurrence...");
+      $owner = array_key_exists('USERNAME', $GLOBALS) ? $GLOBALS['USERNAME'] : '';
 
+      // INSERT INTO images(occid, url, thumbnailurl, originalurl, owner) VALUES;
+      $sql = ImageArchiveUploader::SQL_IMG_INSERT . "($assocOccId, '$imgLgUrl', '$imgTnUrl', '$imgTargetUrl', '$owner')";
+      if ($this->conn->query($sql) === TRUE) {
+        $this->logMsg('info', "Successfully uploaded image for occurrence $assocOccId: " . $_SERVER['SERVER_NAME'] . $imgTargetUrl);
+      } else {
+        $success = false;
+        $this->logMsg('warn', "Failed to link image to occurrence $assocOccId: " . $this->conn->error);
+      }
     }
 
     return $success;
@@ -454,7 +478,7 @@ class ImageArchiveUploader {
 
   /**
    * Checks the extension, mimeType, and naming scheme of the given zip file
-   * @param  string $filePath Path to the file to validate
+   * @param  string $filePath Path to the fileF to validate
    * @return bool             Whether all checks passed
    */
   private function validateZipFile($filePath) {
@@ -519,8 +543,25 @@ class ImageArchiveUploader {
       $res->close();
     }
 
-    if ($result === -1) {
-      $this->logMsg("info", "No associated occurrences found");
+    return $result;
+  }
+
+  /**
+   * @param  string $catalogNumber Occurrence catalog number
+   * @return int occid for the catalogNumber
+   */
+  private function getImageUrlsForOccid($occId) {
+    $sql = "SELECT url FROM images " .
+      "WHERE occid = $occId";
+    $result = array();
+    if ($res = $this->conn->query($sql)) {
+      while($row = $res->fetch_assoc()) {
+        if ($row !== null && $row['url'] !== null) {
+          array_push($result, $row['url']);
+        }
+      }
+
+      $res->close();
     }
 
     return $result;
