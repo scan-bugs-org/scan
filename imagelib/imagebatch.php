@@ -101,16 +101,36 @@ $sqlConn->close();
 		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
+			<h4>
+				Warning: This page is currently in BETA testing and may produce
+				unexpected results.
+			</h4>
 			<p>
 				Use this page to batch upload images for a particular collection.
-				Images should be compressed into a zip file.
+				Images should be compressed into a zip file. Please do not upload
+				unless directed to do so by the site administrator. Save the log files
+				produced by this page in case you need to email them to the site
+				administrator.
 			</p>
-			<b>
-				<p>
-					Warning: This page is currently for testing only. Please do not upload
-					unless directed to do so by the site administrator.
-				</p>
-			</b>
+			<h4>
+				Currently, all image file names must start with the catalog number
+				followed by an underscore. Catalog numbers that are not already
+				associated with a record in the SCAN database will be rejected.
+			</h4>
+			<p>
+				For example, to upload images for the catalog number NAUF4A0007000, the
+				following files could be compressed into a zip archive and uploaded:
+			</p>
+			<ul>
+				<li>NAUF4A0007000_D.jpg</li>
+				<li>NAUF4A0007000_L.jpg</li>
+				<li>NAUF4A0007000_V.jpg</li>
+			</ul>
+			<p>
+				Following the underscore, a unique identifying string
+				must be used for each image. In the above example, the identifying
+				string is a D, L, or V, for dorsal, lateral, or ventral.
+			</p>
 			<?php
 			if (sizeof($allowedCollections) > 0) {
 			?>
