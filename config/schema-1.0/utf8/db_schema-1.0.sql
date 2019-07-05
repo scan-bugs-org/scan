@@ -2323,6 +2323,7 @@ CREATE TABLE `omoccurrences` (
   `duplicateQuantity` int(10) unsigned DEFAULT NULL,
   `labelProject` varchar(50) DEFAULT NULL,
   `dateEntered` datetime DEFAULT NULL,
+  `attributes` varchar(255) DEFAULT NULL,
   `dateLastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`occid`) USING BTREE,
   UNIQUE KEY `Index_collid` (`collid`,`dbpk`),
