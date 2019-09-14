@@ -81,8 +81,14 @@ header("Content-Type: text/html; charset=".$charset);
                 portal for SCAN; all other project information can be found on the <a href="http://www.lep-net.org/" target="_blank">LepNet WordPress site</a>, including How-To-Guides and network
                 updates.
             </div>
+            <?php
+                $solr_count_url = $GLOBALS["SOLR_URL"] . "/select?facet=true&q=*:*&rows=0&wt=json";
+                $count_json = json_decode(file_get_contents($solr_count_url), true);
+                $occurrence_count = $count_json["response"]["numFound"];
+            ?>
 			<div style="margin-top:10px;padding: 0px 10px;">
-                SCAN currently serves over 18 million records for 238,177 species, and 2,276,630 specimen/label images (7/16/18).
+                SCAN currently serves <?php echo number_format($occurrence_count); ?> records for over 238,177 species, and over 2,276,630 specimen/label images 
+                (<?php echo date('Y-m-d H:i:s') . ' ' . date_default_timezone_get(); ?>).
             </div>
 		<div style="margin-top:10px;padding: 0px 10px;">
         <a href="mailto:neilscobb@gmail.com"><img src="<?php echo $clientRoot; ?>/images/layout/Help_Sessions.png" style="width:250px;" alt="Help sessions" /></a>
