@@ -1,4 +1,5 @@
 <?php
+ini_set('MAX_EXECUTION_TIME', 0);
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverOccurrence.php');
