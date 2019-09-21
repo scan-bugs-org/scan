@@ -98,6 +98,9 @@ if (top.frames.length!=0)
 								<a href="<?php echo $clientRoot; ?>/checklists/checklist.php?cl=33" >Eleodes of Arizona</a>
 							</li>
               <li>
+                <a href="<?php echo $clientRoot; ?>/checklists/checklist.php?cl=104">Gelechiidae of America</a>
+              </li>
+              <li>
 								<a href="<?php echo $clientRoot; ?>/checklists/checklist.php?cl=5" >Lepidoptera of Arizona</a>
 							</li>
               <li>
