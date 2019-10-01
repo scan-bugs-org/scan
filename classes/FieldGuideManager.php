@@ -56,7 +56,7 @@ class FieldGuideManager {
             );
             $ch = curl_init();
             $options = array(
-                CURLOPT_URL => 'https://fieldguide.net/api2/symbiota/cv_job_status',
+                CURLOPT_URL => 'https://fieldguide.ai/api2/symbiota/cv_job_status',
                 CURLOPT_POST => true,
                 CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_TIMEOUT => 90,
@@ -114,7 +114,7 @@ class FieldGuideManager {
             );
             $ch = curl_init();
             $options = array(
-                CURLOPT_URL => 'https://fieldguide.net/api2/symbiota/submit_cv_job',
+                CURLOPT_URL => 'https://fieldguide.ai/api2/symbiota/submit_cv_job',
                 CURLOPT_POST => true,
                 CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_TIMEOUT => 90,
@@ -177,7 +177,7 @@ class FieldGuideManager {
         );
         $ch = curl_init();
         $options = array(
-            CURLOPT_URL => 'https://fieldguide.net/api2/symbiota/remove_cv_job',
+            CURLOPT_URL => 'https://fieldguide.ai/api2/symbiota/remove_cv_job',
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT => 90,
