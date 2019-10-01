@@ -538,7 +538,7 @@ class OccurrenceUtilities {
 				$latDec = $recMap['latdeg'];
 				if(isset($recMap['latmin']) && $recMap['latmin'] && is_numeric($recMap['latmin'])) $latDec += $recMap['latmin']/60;
 				if(isset($recMap['latsec']) && $recMap['latsec'] && is_numeric($recMap['latsec'])) $latDec += $recMap['latsec']/3600;
-				if(stripos($recMap['latns'],'s') === 0 && $latDec > 0) $latDec *= -1;
+				if(isset($recMap['latns']) && $recMap['latns'] && stripos($recMap['latns'],'s') === 0 && $latDec > 0) $latDec *= -1;
 				$lngDec = $recMap['lngdeg'];
 				if(isset($recMap['lngmin']) && $recMap['lngmin'] && is_numeric($recMap['lngmin'])) $lngDec += $recMap['lngmin']/60;
 				if(isset($recMap['lngsec']) && $recMap['lngsec'] && is_numeric($recMap['lngsec'])) $lngDec += $recMap['lngsec']/3600;
