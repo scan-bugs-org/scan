@@ -40,14 +40,27 @@ class OccurrenceListManager extends OccurrenceManager{
             'CONCAT_WS(", ",o.locality,CONCAT(ROUND(o.decimallatitude,5)," ",ROUND(o.decimallongitude,5))) AS locality, '.
             'IFNULL(o.LocalitySecurity,0) AS LocalitySecurity, o.localitysecurityreason, IFNULL(o.habitat,"") AS habitat, '.
             'CONCAT_WS("-",o.minimumElevationInMeters, o.maximumElevationInMeters) AS elev, o.observeruid, '.
-            'o.individualCount, o.lifeStage, o.sex, c.sortseq ';
+            'o.individualCount, o.lifeStage, o.sex, c.sortseq, ' .
+            'o.associatedOccurrences, o.associatedTaxa ';
         $sql .= (array_key_exists("assochost",$this->searchTermsArr)?', oas.verbatimsciname ':' ');
         $sql .= 'FROM omoccurrences AS o LEFT JOIN omcollections AS c ON o.collid = c.collid '.$this->setTableJoins($sqlWhere).$sqlWhere;
         if($this->sortField1 || $this->sortField2 || $this->sortOrder){
-            $sortFields = array('Collection' => 'collection','Catalog Number' => 'o.CatalogNumber','Family' => 'o.family',
-                'Scientific Name' => 'o.sciname','Collector' => 'o.recordedBy','Number' => 'o.recordNumber','Event Date' => 'o.eventDate',
-                'Individual Count' => 'o.individualCount','Life Stage' => 'o.lifeStage','Sex' => 'o.sex',
-                'Country' => 'o.country','State/Province' => 'o.StateProvince','County' => 'o.county','Elevation' => 'CAST(elev AS UNSIGNED)');
+            $sortFields = array(
+              'Collection' => 'collection',
+              'Catalog Number' => 'o.CatalogNumber',
+              'Family' => 'o.family',
+              'Scientific Name' => 'o.sciname',
+              'Collector' => 'o.recordedBy',
+              'Number' => 'o.recordNumber',
+              'Event Date' => 'o.eventDate',
+              'Individual Count' => 'o.individualCount',
+              'Life Stage' => 'o.lifeStage',
+              'Sex' => 'o.sex',
+              'Country' => 'o.country',
+              'State/Province' => 'o.StateProvince',
+              'County' => 'o.county',
+              'Elevation' => 'CAST(elev AS UNSIGNED)'
+            );
             if($this->sortField1) $this->sortField1 = $sortFields[$this->sortField1];
             if($this->sortField2) $this->sortField2 = $sortFields[$this->sortField2];
             $sql .= "ORDER BY ";
@@ -86,6 +99,9 @@ class OccurrenceListManager extends OccurrenceManager{
             $returnArr[$occId]["observeruid"] = $row->observeruid;
             $returnArr[$occId]["individualCount"] = $this->cleanOutStr($row->individualCount);
             $returnArr[$occId]["lifeStage"] = $this->cleanOutStr($row->lifeStage);
+            $returnArr[$occId]["sex"] = $this->cleanOutStr($row->sex);
+            $returnArr[$occId]["associatedTaxa"] = $this->cleanOutStr($row->associatedTaxa);
+            $returnArr[$occId]["associatedOccurrences"] = $this->cleanOutStr($row->associatedOccurrences);
             $returnArr[$occId]["sex"] = $this->cleanOutStr($row->sex);
             $localitySecurity = $row->LocalitySecurity;
             if(!$localitySecurity || $canReadRareSpp
