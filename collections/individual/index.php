@@ -660,6 +660,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								</div>
 								<?php
 							}
+              if($occArr['associatedoccurrences']){
+                ?>
+                <div style="clear:both;">
+                  <b>Associated Occurrences:</b>
+                  <ul>
+                  <?php
+                    $occurrences = $occArr['associatedoccurrences'];
+                    for ($i = 0; $i < count($occurrences); $i++) {
+                      echo "<li><a href='$occurrences[$i]'>$occurrences[$i]</a></li>";
+                    }
+                  ?>
+                  </ul>
+                </div>
+                <?php
+              }
 						}
 						if($QUICK_HOST_ENTRY_IS_ACTIVE){
                             if($occArr['verbatimsciname']){
