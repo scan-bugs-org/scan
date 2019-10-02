@@ -61,7 +61,8 @@ class FieldGuideManager {
                 CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_TIMEOUT => 90,
                 CURLOPT_POSTFIELDS => http_build_query($pArr),
-                CURLOPT_RETURNTRANSFER => true
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true
             );
             curl_setopt_array($ch, $options);
             $result = curl_exec($ch);
@@ -119,7 +120,8 @@ class FieldGuideManager {
                 CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_TIMEOUT => 90,
                 CURLOPT_POSTFIELDS => http_build_query($pArr),
-                CURLOPT_RETURNTRANSFER => true
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true
             );
             curl_setopt_array($ch, $options);
             $result = curl_exec($ch);
@@ -182,7 +184,8 @@ class FieldGuideManager {
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT => 90,
             CURLOPT_POSTFIELDS => http_build_query($pArr),
-            CURLOPT_RETURNTRANSFER => true
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true
         );
         curl_setopt_array($ch, $options);
         $result = curl_exec($ch);
