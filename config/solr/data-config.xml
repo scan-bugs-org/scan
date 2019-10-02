@@ -14,6 +14,7 @@
                     CASE WHEN o.eventdate NOT LIKE '%-00%' THEN DATE_FORMAT(o.eventdate,'%Y-%m-%dT%TZ') ELSE NULL END AS eventDate,
                     CONCAT_WS(' to ',IFNULL(DATE_FORMAT(o.eventDate,'%d %M %Y'),''),DATE_FORMAT(MAKEDATE(o.year,o.endDayOfYear),'%d %M %Y')) AS displayDate,
                     o.`year`, o.`month`, o.`day`, o.habitat, o.associatedTaxa,
+                    o.associatedOccurrences, o.dynamicProperties,
                     o.cultivationStatus, o.`country`, o.stateProvince, o.`county`, o.municipality, o.locality,
                     o.localitySecurity, o.localitySecurityReason, o.decimalLatitude, o.decimalLongitude,
                     CONCAT('POINT(',o.decimalLongitude,' ',o.decimalLatitude,')') as pointLocation, o.minimumElevationInMeters,
