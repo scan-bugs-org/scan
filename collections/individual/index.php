@@ -666,7 +666,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   <b>Associated Occurrences:</b>
                   <ul>
                   <?php
-                    $occurrences = $occArr['associatedoccurrences'];
+                    $occurrences = json_decode($occArr['associatedoccurrences']);
                     for ($i = 0; $i < count($occurrences); $i++) {
                       echo "<li><a href='$occurrences[$i]'>$occurrences[$i]</a></li>";
                     }
