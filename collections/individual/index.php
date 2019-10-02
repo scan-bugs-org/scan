@@ -840,6 +840,22 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								echo '</a></div>';
 							}
 						}
+
+
+            if($occArr['dynamicproperties']){
+            ?>
+              <div style="clear:both;">
+                <b>Dynamic Properties:</b><br>
+                <input
+                  readonly
+                  style="font-family: Monospace"
+                  type="text"
+                  value="<?php echo $occArr["dynamicproperties"] ?>">
+              </div>
+
+            <?php
+            }
+
 						//Rights
 						$rightsStr = $collMetadata['rights'];
 						if($collMetadata['rights']){
