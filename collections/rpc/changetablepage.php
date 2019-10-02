@@ -81,6 +81,7 @@ if($recArr){
     $recordListHtml .= '<th>Sex</th>';
     $recordListHtml .= '<th>Associated Occurrences</th>';
     $recordListHtml .= '<th>Associated Taxa</th>';
+    $recordListHtml .= '<th>Dynamic Properties</th>';
     $recordListHtml .= '</tr>';
     $recCnt = 0;
     foreach($recArr as $id => $occArr){
@@ -131,6 +132,7 @@ if($recArr){
         $recordListHtml .= '<td>'.(array_key_exists("sex",$occArr)?$occArr['sex']:"").'</td>'."\n";
         $recordListHtml .= '<td>'.(array_key_exists("associatedOccurrences",$occArr)?$occArr['associatedOccurrences']:"").'</td>'."\n";
         $recordListHtml .= '<td>'.(array_key_exists("associatedTaxa",$occArr)?$occArr['associatedTaxa']:"").'</td>'."\n";
+        $recordListHtml .= '<td>'.(array_key_exists("dynamicProperties",$occArr)?$occArr['dynamicProperties']:"").'</td>'."\n";
         $recordListHtml .= "</tr>\n";
         $recCnt++;
     }

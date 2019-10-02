@@ -41,7 +41,7 @@ class OccurrenceListManager extends OccurrenceManager{
             'IFNULL(o.LocalitySecurity,0) AS LocalitySecurity, o.localitysecurityreason, IFNULL(o.habitat,"") AS habitat, '.
             'CONCAT_WS("-",o.minimumElevationInMeters, o.maximumElevationInMeters) AS elev, o.observeruid, '.
             'o.individualCount, o.lifeStage, o.sex, c.sortseq, ' .
-            'o.associatedOccurrences, o.associatedTaxa ';
+            'o.associatedOccurrences, o.associatedTaxa, o.dynamicProperties ';
         $sql .= (array_key_exists("assochost",$this->searchTermsArr)?', oas.verbatimsciname ':' ');
         $sql .= 'FROM omoccurrences AS o LEFT JOIN omcollections AS c ON o.collid = c.collid '.$this->setTableJoins($sqlWhere).$sqlWhere;
         if($this->sortField1 || $this->sortField2 || $this->sortOrder){
@@ -102,6 +102,7 @@ class OccurrenceListManager extends OccurrenceManager{
             $returnArr[$occId]["sex"] = $this->cleanOutStr($row->sex);
             $returnArr[$occId]["associatedTaxa"] = $this->cleanOutStr($row->associatedTaxa);
             $returnArr[$occId]["associatedOccurrences"] = $this->cleanOutStr($row->associatedOccurrences);
+            $returnArr[$occId]["dynamicProperties"] = $this->cleanOutStr($row->dynamicProperties);
             $returnArr[$occId]["sex"] = $this->cleanOutStr($row->sex);
             $localitySecurity = $row->LocalitySecurity;
             if(!$localitySecurity || $canReadRareSpp
