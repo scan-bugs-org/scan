@@ -32,6 +32,7 @@
                     CONCAT('POINT(',o.decimalLongitude,' ',o.decimalLatitude,')') as pointLocation, o.minimumElevationInMeters,
                     o.maximumElevationInMeters, o.observeruid, o.lifeStage, o.sex, o.individualCount,
                     c.InstitutionCode, c.CollectionCode, c.CollectionName, c.icon, c.CollType, c.SortSeq
+                    o.associatedOccurrences, o.dynamicProperties
                     FROM omoccurrences AS o LEFT JOIN omcollections AS c ON o.collid = c.collid
                     WHERE o.occid = '${dih.delta.occid}'"
                 deltaQuery="SELECT occid FROM images i WHERE (i.InitialTimeStamp > CONVERT_TZ('${dih.last_index_time}','+00:00','-06:00'))

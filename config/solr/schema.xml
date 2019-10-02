@@ -176,6 +176,8 @@
     <field name="CLID" type="int" indexed="true" stored="true" multiValued="true" />
     <field name="accFamily" type="string" indexed="true" stored="true"/>
     <field name="parenttid" type="int" indexed="true" stored="true" multiValued="true" />
+    <field name="dynamicProperties" type="string" indexed="true" stored="true"/>
+    <field name="associatedOccurrences" type="string" indexed="true" stored="true"/>
 
     <!-- Only enabled in the "schemaless" data-driven example (assuming the client
          does not know what fields may be searched) because it's very expensive to index everything twice. -->
