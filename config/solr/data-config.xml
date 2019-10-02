@@ -81,6 +81,8 @@
                 <field column="icon" name="collicon"/>
                 <field column="CollType" name="CollType"/>
                 <field column="SortSeq" name="SortSeq"/>
+                <field column="dynamicProperties" name="dynamicProperties"/>
+                <field column="associatedOccurrences" name="associatedOccurrences"/>
                 <entity name="images_inner"
                   query="SELECT imgid, thumbnailurl FROM images WHERE occid ='${omoccurrences.occid}' ORDER BY sortsequence">
                   <field column="imgid" name="imgid"/>
