@@ -36,6 +36,7 @@ $sqlConn->close();
 <html>
 	<head>
 		<title>Batch Image Upload</title>
+    <meta charset='<?php echo isset($GLOBALS["CHARSET"]) ? $GLOBALS["CHARSET"] : "utf-8" ?>'>
 		<link
 			href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>"
 			type="text/css"
@@ -61,14 +62,49 @@ $sqlConn->close();
 			type="text/javascript">
 		</script>
 		<script type="text/javascript">
-			function formValidate() {
-				const form = document.forms["batchImage"];
+      function saveRegex(textField) {
+        const oneDay = 1000 * 60 * 60 * 24;
+
+        const cookieDate = new Date();
+        cookieDate.setTime(cookieDate.getTime() + oneDay);
+
+        const cookieKeyValue = `catalogRegex=${textField.value}`;
+        const cookieExpiry = `expires=${cookieDate.toUTCString()}`;
+
+        const cookie = [cookieKeyValue, cookieExpiry].join(";");
+
+        console.log(cookie);
+        document.cookie = cookie;
+      }
+
+      function loadRegex(textField) {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          let [key, value] = cookies[i].split("=");
+          if (key === "catalogRegex") {
+            textField.value = value.replace(/"/g, '');
+            break;
+          }
+        }
+      }
+
+      function validateRegex(textField) {
+        try {
+          new RegExp(textField.value);
+          textField.setCustomValidity("");
+        } catch (e) {
+          textField.setCustomValidity("Invalid field.");
+        }
+      }
+
+			function onFormSubmit(form) {
 				if (!form["file"].value.endsWith(".zip")) {
 					alert("Invalid file format. Upload a zip file");
 					form["file"].value = '';
 					return false;
 				}
 
+				saveRegex(form['regex']);
 				return true;
 			}
 		</script>
@@ -139,7 +175,7 @@ $sqlConn->close();
 					name="batchImage"
 					id="batchImage"
 					class="container"
-					onsubmit="return formValidate();"
+					onsubmit="return onFormSubmit(this);"
 					method="post"
 					enctype="multipart/form-data"
 					action=<?php echo $CLIENT_ROOT . "/imagelib/imagebatch.php"?>>
@@ -156,10 +192,23 @@ $sqlConn->close();
 								</select>
 							</td>
 						</tr>
+            </tr>
+            <td>Catalog number regex:</td>
+            <td>
+              <input
+                type="text"
+                name="regex"
+                onchange="validateRegex(this);"
+                required
+              >
+              <script type="text/javascript">
+                loadRegex(document.forms["batchImage"]["regex"]);
+              </script>
+            </td>
+            </tr>
 						<tr>
 							<td style="text-align: right;"><label for="file">Image Archive:</label></td>
 							<td><input type="file" name="file" required></td>
-						</tr>
 						<br>
 						<tr>
 							<td></td>
@@ -179,10 +228,10 @@ $sqlConn->close();
 
 			<p>
 			<?php
-				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES)) {
+				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES) && array_key_exists("regex", $_POST)) {
 
           $uploader = new ImageArchiveUploader($_POST['collection']);
-					$uploader->load($_FILES['file']);
+					$uploader->load($_FILES['file'], '/' . trim($_POST['regex'], '/') . '/');
 
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";

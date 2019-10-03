@@ -44,6 +44,7 @@ class ImageArchiveUploader {
   private $collId;
   private $imgPathPrefix;
   private $imgUrlPrefix;
+  private $catalogRegex;
 
   private $tnPixWidth = 200;
   private $tnPixHeight = 70;
@@ -121,11 +122,12 @@ class ImageArchiveUploader {
     }
   }
 
-  public function load($postFile) {
+  public function load($postFile, $catalogRegex) {
     // Upload the archive
     if ($this->loadZip($postFile)) {
       $fileName = basename($postFile['name']);
-      $this->logMsg("info", "Starting image processing...");
+      $this->catalogRegex = $catalogRegex;
+      $this->logMsg("info", "Starting image processing on $fileName...");
       $this->logBreak();
 
       // Unzip / process the images
@@ -222,6 +224,12 @@ class ImageArchiveUploader {
 
       $this->logMsg('info', "Found " . basename($zipMemberName));
 
+      if (!preg_match($this->catalogRegex, $zipMemberName)) {
+        $this->logMsg('info', "Catalog number not found in $zipMemberName. Skipping...");
+        $this->logBreak();
+        continue;
+      }
+
       $this->logMsg('info', "Extracting " . basename($zipMemberName) . "...");
       $this->zipFile->extractTo($GLOBALS['TEMP_DIR_ROOT'], $zipMemberName);
       $tmpImgPath = $GLOBALS['TEMP_DIR_ROOT'] . '/' . $zipMemberName;
@@ -233,7 +241,8 @@ class ImageArchiveUploader {
       }
 
       if ($this->validateImageFile($tmpImgPath)) {
-        $catalogNumber = explode('_', basename($tmpImgPath))[0];
+        preg_match($this->catalogRegex, $zipMemberName, $catalogNumber);
+        $catalogNumber = $catalogNumber[0];
         $this->logMsg('info', "Catalog number is $catalogNumber");
 
         $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
