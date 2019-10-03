@@ -66,7 +66,7 @@ $sqlConn->close();
         const oneDay = 1000 * 60 * 60 * 24;
 
         const cookieDate = new Date();
-        cookieDate.setTime(cookieDate.getTime() + oneDay);
+        cookieDate.setTime(cookieDate.getTime() + oneDay * 7);
 
         const cookieKeyValue = `catalogRegex=${textField.value}`;
         const cookieExpiry = `expires=${cookieDate.toUTCString()}`;
@@ -150,9 +150,13 @@ $sqlConn->close();
 				email it to the site administrator.
 			</p>
 			<h4>
-				Currently, all image file names must start with the catalog number
-				followed by an underscore. Catalog numbers that are not already
-				associated with a record in the SCAN database will be rejected.
+        This utility requires that each image file contains the associated
+        catalog number, and that regular expressions be in the
+          <a target="_blank" href="https://perldoc.perl.org/perlre.html">
+            PCRE (Perl) format
+          </a>.
+        Catalog numbers that are not already associated with a record in the
+        SCAN database will be rejected.
 			</h4>
 			<p>
 				For example, to upload images for the catalog number NAUF4A0007000, the
@@ -164,9 +168,10 @@ $sqlConn->close();
 				<li>NAUF4A0007000_V.jpg</li>
 			</ul>
 			<p>
-				Following the underscore, a unique identifying string
-				can be added for each image. In the above example, the identifying
-				string is a D, L, or V, for dorsal, lateral, or ventral.
+				And the regex to detect the catalog number would be
+        <a target="_blank" href="https://regex101.com/r/3mGb8E/1">
+          NAUF\d[A-Z]\d{7}
+        </a>.
 			</p>
 			<?php
 			if (sizeof($allowedCollections) > 0) {
