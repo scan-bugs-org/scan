@@ -143,7 +143,6 @@ if($isEditor){
 				<div id="tabs" class="taxondisplaydiv">
 				    <ul>
 				        <li><a href="#introdiv">Introduction</a></li>
-				        <li><a href="imageprocessor.php?collid=<?php echo $collid.'&spprid='.$spprId.'&submitaction='.$action.'&filename='.$fileName; ?>">Image Loading</a></li>
 				        <li><a href="crowdsource/controlpanel.php?collid=<?php echo $collid; ?>">Crowdsourcing</a></li>
 				        <li><a href="ocrprocessor.php?collid=<?php echo $collid.'&procstatus='.$procStatus.'&spprid='.$spprId; ?>">OCR</a></li>
 				        <!-- 
@@ -169,19 +168,17 @@ if($isEditor){
 							Use tabs above for access tools.     
 						</div>
 						<div style="margin:10px;height:400px;">
+              <?php
+              $imgBatchUrl = $_SERVER['REQUEST_SCHEME'] . '://';
+              $imgBatchUrl .= isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
+              $imgBatchUrl .= substr($GLOBALS['CLIENT_ROOT'], 0) !== '/' ? '/' : '';
+              $imgBatchUrl .= $GLOBALS['CLIENT_ROOT'];
+              $imgBatchUrl .= substr($imgBatchUrl, -1) !== '/' ? '/' : '';
+              $imgBatchUrl .= 'imagelib/imagebatch.php';
+              echo "<a href='$imgBatchUrl'>";
+              ?>
 							<h2>Image Loading</h2>
-							<div style="margin:15px">
-								The batch image loading module is designed to batch process specimen images that are deposited in a 
-								drop folder. This module will produce web-ready images for a group of specimen images and 
-								map the new image derivative to specimen records. Images can be linked to already existing 
-								specimen records, or linked to a newly created skeletal specimen record for further digitization within the portal.
-								Field data from skeletal data files (.csv, .tab, .dat) placed in the image folders will  
-								augment new records by adding content to empty fields only. 
-								The column names of skeletal files must match Symbiota field names (e.g. Darwin Core) with catalogNumber as a 
-								required field. For more information, see the
-								<b><a href="http://symbiota.org/docs/batch-loading-specimen-images-2/">Batch Image Loading</a></b> section 
-								on the <b><a href="http://symbiota.org">Symbiota</a> website</b>.   
-							</div>
+              <?php echo "</a>"; ?>
 
 							<h2>Crowdsourcing Module</h2>
 							<div style="margin:15px">
