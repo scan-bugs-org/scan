@@ -10,27 +10,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID){
 	header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=' . $CLIENT_ROOT . '/imagelib/imagebatch.php?'.$_SERVER['QUERY_STRING']);
 }
-
-// Get collections list
-$collectionPermissionSql = <<< EOD
-select distinct c.collid, c.collectionname
-from omcollections c
-inner join userroles r on c.collid = r.tablepk
-inner join users u on r.uid = u.uid
-where (r.role = 'CollEditor' or r.role = 'CollAdmin') and u.uid = $SYMB_UID
-order by c.collectionname;
-EOD;
-
-$sqlConn = MySQLiConnectionFactory::getCon("readonly");
-$allowedCollections = array();
-if ($res = $sqlConn->query($collectionPermissionSql)) {
-	while($coll = $res->fetch_assoc()) {
-		array_push($allowedCollections, array("collid" => $coll['collid'], "collectionname" => $coll['collectionname']));
-	}
-	$res->close();
-}
-$sqlConn->close();
-
 ?>
 
 <html>
@@ -62,39 +41,32 @@ $sqlConn->close();
 			type="text/javascript">
 		</script>
 		<script type="text/javascript">
-      function saveRegex(textField) {
-        const oneDay = 1000 * 60 * 60 * 24;
+      function httpGet(url) {
+        const req = new XMLHttpRequest();
+        return new Promise((resolve, reject) => {
+          req.onreadystatechange = () => {
+            if (req.readyState === 4 && req.status === 200) {
+              resolve(req.responseText);
+              req.onreadystatechange = () => {};
+            } else if (req.readyState === 4) {
+              reject(req.status);
+            }
+          };
 
-        const cookieDate = new Date();
-        cookieDate.setTime(cookieDate.getTime() + oneDay * 7);
-
-        const cookieKeyValue = `catalogRegex=${textField.value}`;
-        const cookieExpiry = `expires=${cookieDate.toUTCString()}`;
-
-        const cookie = [cookieKeyValue, cookieExpiry].join(";");
-
-        console.log(cookie);
-        document.cookie = cookie;
+          req.open("GET", url, true);
+          req.send();
+        });
       }
 
-      function loadRegex(textField) {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          let [key, value] = cookies[i].split("=");
-          if (key === "catalogRegex") {
-            textField.value = value.replace(/"/g, '');
-            break;
-          }
-        }
-      }
+      function disableFormAndShowError(msg) {
+        const batchImageForm = document.getElementById("batchImage");
+        const submitButton = document.getElementById("submit-button");
+        submitButton.setAttribute("disabled", "true");
 
-      function validateRegex(textField) {
-        try {
-          new RegExp(textField.value);
-          textField.setCustomValidity("");
-        } catch (e) {
-          textField.setCustomValidity("Invalid field.");
-        }
+        let errorMsg = document.createElement("p");
+        errorMsg.style.color = "red";
+        errorMsg.innerHTML = msg;
+        batchImageForm.appendChild(errorMsg);
       }
 
 			function onFormSubmit(form) {
@@ -103,9 +75,7 @@ $sqlConn->close();
 					form["file"].value = '';
 					return false;
 				}
-
-				saveRegex(form['regex']);
-				return true;
+        return true;
 			}
 		</script>
 		<style>
@@ -173,9 +143,6 @@ $sqlConn->close();
           NAUF\d[A-Z]\d{7}
         </a>.
 			</p>
-			<?php
-			if (sizeof($allowedCollections) > 0) {
-			?>
 				<form
 					name="batchImage"
 					id="batchImage"
@@ -188,13 +155,33 @@ $sqlConn->close();
 						<tr>
 							<td style="text-align: right;"><label for="collection">Collection:</label></td>
 							<td>
-								<select name="collection" required>
-									<?php
-										foreach ($allowedCollections as $coll) {
-											echo '<option value="' . $coll["collid"] . '">' . $coll["collectionname"] . '</option>';
-										}
-									?>
-								</select>
+								<select id="select-collection" name="collection" required disabled></select>
+                <script>
+                  const selectCollection = document.getElementById("select-collection");
+                  let allowedCollections = [];
+                  httpGet("./rpc/imagebatch.php?allowedCollections=true")
+                    .then((res) => {
+                      allowedCollections = JSON.parse(res);
+
+                      if (allowedCollections.length > 0) {
+                        for (let i in allowedCollections) {
+                          let currentItem = allowedCollections[i];
+                          let selectItem = document.createElement("option");
+                          selectItem.innerHTML = currentItem.collectionname;
+                          selectItem.value = currentItem.collid;
+                          selectCollection.appendChild(selectItem);
+                        }
+                        selectCollection.removeAttribute("disabled");
+                      } else {
+                        let errorMsg = "You aren't an editor on any collections. ";
+                        errorMsg += "Contact your collection administrator.";
+                        disableFormAndShowError(errorMsg);
+                      }
+                    })
+                    .catch((err) => {
+                      console.error(err);
+                    });
+                </script>
 							</td>
 						</tr>
             </tr>
@@ -203,12 +190,8 @@ $sqlConn->close();
               <input
                 type="text"
                 name="regex"
-                onchange="validateRegex(this);"
                 required
               >
-              <script type="text/javascript">
-                loadRegex(document.forms["batchImage"]["regex"]);
-              </script>
             </td>
             </tr>
 						<tr>
@@ -218,18 +201,11 @@ $sqlConn->close();
 						<tr>
 							<td></td>
 							<td style="text-align: right;">
-								<input type="submit" value="Submit">
+								<input id="submit-button" type="submit" value="Submit">
 							</td>
 						</tr>
 					</table>
 				</form>
-			<?php
-			} else {
-			?>
-				<b style="color: red">You aren't a collection editor. Contact your collection administrator.</b>
-			<?php
-			}
-			?>
 
 			<p>
 			<?php
