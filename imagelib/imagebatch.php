@@ -121,167 +121,85 @@ if(!$SYMB_UID){
 			</p>
 			<h4>
         This utility requires that each image file contains the associated
-        catalog number, and that regular expressions be in the
-          <a target="_blank" href="https://perldoc.perl.org/perlre.html">
-            PCRE (Perl) format
-          </a>.
-        Catalog numbers that are not already associated with a record in the
-        SCAN database will be rejected.
+        catalog number.
 			</h4>
 			<p>
 				For example, to upload images for the catalog number NAUF4A0007000, the
 				following files could be compressed into a zip archive and uploaded:
 			</p>
 			<ul>
-				<li>NAUF4A0007000_D.jpg</li>
+				<li>someOtherIdentifier_NAUF4A0007000_DLVAPQ1234.jpg</li>
 				<li>NAUF4A0007000_L.jpg</li>
 				<li>NAUF4A0007000_V.jpg</li>
 			</ul>
-			<p>
-				And the regex to detect the catalog number would be
-        <a target="_blank" href="https://regex101.com/r/3mGb8E/1">
-          NAUF\d[A-Z]\d{7}
-        </a>.
-			</p>
-				<form
-					name="batchImage"
-					id="batchImage"
-					class="container"
-					onsubmit="return onFormSubmit(this);"
-					method="post"
-					enctype="multipart/form-data"
-					action=<?php echo $CLIENT_ROOT . "/imagelib/imagebatch.php"?>>
-					<table>
-						<tr>
-							<td style="text-align: right;"><label for="collection">Collection:</label></td>
-							<td>
-								<select id="select-collection" name="collid" required disabled></select>
-                <script>
-                  const selectCollection = document.getElementById("select-collection");
-                  let allowedCollections = [];
-                  httpGet("./rpc/imagebatch.php?allowedCollections=true")
-                    .then((res) => {
-                      allowedCollections = JSON.parse(res);
+      <form
+        name="batchImage"
+        id="batchImage"
+        class="container"
+        onsubmit="return onFormSubmit(this);"
+        method="post"
+        enctype="multipart/form-data"
+        action=<?php echo $CLIENT_ROOT . "/imagelib/imagebatch.php"?>>
+        <table>
+          <tr>
+            <td style="text-align: right;"><label for="collection">Collection:</label></td>
+            <td>
+              <select id="select-collection" name="collid" required disabled></select>
+              <script>
+                const selectCollection = document.getElementById("select-collection");
+                let allowedCollections = [];
+                httpGet("./rpc/imagebatch.php?allowedCollections=true")
+                  .then((res) => {
+                    allowedCollections = JSON.parse(res);
 
-                      if (allowedCollections.length > 0) {
-                        for (let i in allowedCollections) {
-                          let currentItem = allowedCollections[i];
-                          let selectItem = document.createElement("option");
-                          selectItem.innerHTML = currentItem.collectionname;
-                          selectItem.value = currentItem.collid;
-                          selectCollection.appendChild(selectItem);
-                        }
-                        selectCollection.removeAttribute("disabled");
-                      } else {
-                        let errorMsg = "You aren't an editor on any collections. ";
-                        errorMsg += "Contact your collection administrator.";
-                        disableFormAndShowError(errorMsg);
+                    if (allowedCollections.length > 0) {
+                      for (let i in allowedCollections) {
+                        let currentItem = allowedCollections[i];
+                        let selectItem = document.createElement("option");
+                        selectItem.innerHTML = currentItem.collectionname;
+                        selectItem.value = currentItem.collid;
+                        selectCollection.appendChild(selectItem);
                       }
-                    })
-                    .catch((err) => {
-                      console.error(err);
-                    });
-                </script>
-							</td>
-						</tr>
-						<tr>
-							<td style="text-align: right;"><label for="file">Image Archive:</label></td>
-							<td><input type="file" name="file" required></td>
-						<br>
-						<tr>
-							<td></td>
-							<td style="text-align: right;">
-								<input id="submit-button" type="submit" value="Submit">
-							</td>
-						</tr>
-					</table>
-				</form>
+                      selectCollection.removeAttribute("disabled");
+                    } else {
+                      let errorMsg = "You aren't an editor on any collections. ";
+                      errorMsg += "Contact your collection administrator.";
+                      disableFormAndShowError(errorMsg);
+                    }
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                  });
+              </script>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: right;"><label for="file">Image Archive:</label></td>
+            <td><input type="file" name="file" required></td>
+          <br>
+          <tr>
+            <td></td>
+            <td style="text-align: right;">
+              <input id="submit-button" type="submit" value="Submit">
+            </td>
+          </tr>
+        </table>
+      </form>
 
 			<p>
 			<?php
 				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES) && array_key_exists("collid", $_POST)) {
-
           $uploader = new ImageArchiveUploader($_POST['collid']);
-					$uploader->load($_FILES['file']);
+          $uploader->load($_FILES['file']);
 
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";
 
-					if (array_key_exists('SOLR_MODE', $GLOBALS) && $GLOBALS['SOLR_MODE']) {
-							$solrMgr = new SOLRManager();
-							$solrMgr->updateSOLR();
-					}
-
-					// Validation
-					// $result = "<li><b>Invalid zip archive!</b></li>";
-					// $zipFileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-					// $zipMimeType = $_FILES['file']['type'];
-					// $zipBasename = basename($_FILES['file']['name']);
-					// $zipTypes = array(
-					// 	'application/zip',
-					// 	'application/x-zip-compressed',
-					// 	'multipart/x-zip',
-					// 	'application/x-compressed'
-					// );
-					// echo "<li>Uploading $zipBasename...</li>";
-          //
-					// if ($zipFileExt === 'zip' && in_array($zipMimeType, $zipTypes)) {
-					// 	$targetDir = $SERVER_ROOT . '/temp/images';
-					// 	$zipLocal = $targetDir . '/' . $zipBasename;
-          //
-					// 	move_uploaded_file($_FILES['file']['tmp_name'], $zipLocal);
-					// 	$zip = new ZipArchive();
-					// 	$zipSuccess = $zip->open($zipLocal, ZipArchive::CHECKCONS) !== ZipArchive::ER_NOZIP;
-          //
-					// 	if ($zipSuccess) {
-					// 		// Process files
-					// 		echo "<li><ul>";
-					// 		for ($i = 0; $i < $zip->numFiles; $i++) {
-					// 			// Extract file
-					// 			$zipMemberName = $zip->getNameIndex($i);
-					// 			echo "<li>Extracting " . $zipMemberName . "...</li>";
-					// 			$zip->extractTo($targetDir, $zipMemberName);
-					// 			$zipMemberName = basename($zipMemberName);
-          //
-					// 			// Extract catalogNumber
-					// 			echo "<li>Processing " . $zipMemberName . "...<ul>";
-					// 			$collId = $_POST['collection'];
-					// 			$catalogNumber = explode("_", $zipMemberName)[0];
-					// 			echo "<li>Catalog number is $catalogNumber</li>";
-          //
-					// 			$catalogSearchSql = "SELECT occid, sciname FROM omoccurrences where catalogNumber = '$catalogNumber' AND collid = $collId";
-          //
-					// 			// Find existing occurrence
-					// 			$assocOccurrence = null;
-					// 			$sqlConn = MySQLiConnectionFactory::getCon("readonly");
-					// 			if ($res = $sqlConn->query($catalogSearchSql)) {
-					// 				$assocOccurrence = $res->fetch_assoc();
-					// 				$res->close();
-					// 			}
-					// 			$sqlConn->close();
-          //
-					// 			// Insert a skeleton occurrence
-					// 			if ($assocOccurrence === null) {
-					// 				echo "<li>Catalog number not found. Creating skeleton occurrence...</li>";
-					// 			}
-					// 			// Just print a status message
-					// 			else {
-					// 				echo "<li>Found associated occurrence: " . $assocOccurrence["sciname"] . "</li>";
-					// 			}
-          //
-					// 			echo "</ul></li>";
-					// 		}
-					// 		echo "</ul></li>";
-          //
-					// 		// Clean up
-					// 		$zip->close();
-					// 		unlink($zipLocal);
-					// 		$result = "<li><b>Success!</b></li>";
-					// 	}
-					// }
-          //
-					// echo $result;
-				}
+          if (array_key_exists('SOLR_MODE', $GLOBALS) && $GLOBALS['SOLR_MODE']) {
+              $solrMgr = new SOLRManager();
+              $solrMgr->updateSOLR();
+          }
+        }
 			?>
 
 		</div>

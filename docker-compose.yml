@@ -18,6 +18,7 @@ services:
     working_dir: /symbiota
     volumes:
       - ./:/symbiota
+      - scan-imgs:/symbiota/imglib
       - ./docker/php-fpm/php-ini-overrides.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
 
   mysql:
