@@ -286,9 +286,11 @@ class ImageArchiveUploader {
       }
 
       if ($this->validateImageFile($tmpImgPath)) {
+
+        // Look up associated record
         $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
 
-        // Create a skeleton record
+        // Or create a skeleton record
         if ($assocOccId === -1) {
            $this->logMsg('info', "Creating to skeleton record...");
            $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
@@ -300,7 +302,7 @@ class ImageArchiveUploader {
            }
         }
 
-        // Upload to existing record
+        // Upload image to record
         $this->logMsg('info', "Linking image to occurrence...");
         $this->processImage($tmpImgPath, $assocOccId);
 
