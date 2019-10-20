@@ -34,7 +34,7 @@ class ImageArchiveUploader {
   );
 
   const SQL_IMG_INSERT = "INSERT INTO images(occid, url, thumbnailurl, originalurl, owner) VALUES ";
-  // const SQL_SKEL_INSERT = "INSERT INTO omoccurrences(collid, catalognumber) VALUES ";
+  const SQL_SKEL_INSERT = "INSERT INTO omoccurrences(collid, catalognumber) VALUES ";
 
   private $zipFile;
   private $createdImgPaths;
@@ -44,7 +44,7 @@ class ImageArchiveUploader {
   private $collId;
   private $imgPathPrefix;
   private $imgUrlPrefix;
-  private $catalogRegex;
+  private $catalogRegexes;
 
   private $tnPixWidth = 200;
   private $tnPixHeight = 70;
@@ -66,6 +66,15 @@ class ImageArchiveUploader {
     $this->tmpZipPath = '';
     $this->logFile = $GLOBALS['LOG_PATH'] . '/' . 'batchupload-' . UuidFactory::getUuidV4() .'.log';
     $this->resetLog();
+
+    // Retrieve catalogRegex
+    $this->catalogRegexes = $this->getCatalogRegex($collId);
+
+    if (count($this->catalogRegexes) == 0) {
+      $this->logMsg('error', "This collection doesn't support catalog number recognition");
+      $this->logMsg('error', "Contact your collection administrator");
+      $this->logBreak();
+    }
 
     // Set image paths
     $this->imgPathPrefix = $GLOBALS['IMAGE_ROOT_PATH'];
@@ -122,11 +131,10 @@ class ImageArchiveUploader {
     }
   }
 
-  public function load($postFile, $catalogRegex) {
+  public function load($postFile) {
     // Upload the archive
     if ($this->loadZip($postFile)) {
       $fileName = basename($postFile['name']);
-      $this->catalogRegex = $catalogRegex;
       $this->logMsg("info", "Starting image processing on $fileName...");
       $this->logBreak();
 
@@ -191,6 +199,28 @@ class ImageArchiveUploader {
   }
 
   /**
+   * @param $collid Collection ID to retrieve the catalog number pattern for
+   * @return Array of strings representing the regexes for the collid catalog numbers
+   */
+  function getCatalogRegex($collid) {
+    $sql = "select speckeypattern from specprocessorprojects where collid = $collid;";
+    $results = [];
+    if ($res = $this->conn->query($sql)) {
+      while($row = $res->fetch_assoc()) {
+        if ($row !== null) {
+          $pattern = $row['speckeypattern'];
+          if ($pattern !== null) {
+            array_push($results, $pattern);
+          }
+        }
+      }
+      $res->close();
+    }
+
+    return $results;
+  }
+
+  /**
    * Validates and loads the given POST zip file into basename($postFile['name'])
    * in $GLOBALS['TEMP_DIR_ROOT']
    * @param  _FILE[member] $postFile The POSTed zip file
@@ -224,11 +254,26 @@ class ImageArchiveUploader {
 
       $this->logMsg('info', "Found " . basename($zipMemberName));
 
-      if (!preg_match($this->catalogRegex, $zipMemberName)) {
+      $matchedCatalogNumber = false;
+      $catalogNumberMatches = [];
+      for ($j = 0; $j < count($this->catalogRegexes); $j++) {
+        if (preg_match($this->catalogRegexes[$j], $zipMemberName, $catalogNumberMatches)) {
+          $matchedCatalogNumber = true;
+          break;
+        }
+      }
+
+      if (!$matchedCatalogNumber) {
         $this->logMsg('info', "Catalog number not found in $zipMemberName. Skipping...");
         $this->logBreak();
         continue;
       }
+
+      // The way regex is set up in the db, preg_match will first match the whole file,
+      // then match the catalog number, then match anything following the catalog number; We just want the
+      // catalog number
+      $catalogNumber = $catalogNumberMatches[1];
+      $this->logMsg('info', "Catalog number is $catalogNumber");
 
       $this->logMsg('info', "Extracting " . basename($zipMemberName) . "...");
       $this->zipFile->extractTo($GLOBALS['TEMP_DIR_ROOT'], $zipMemberName);
@@ -241,30 +286,23 @@ class ImageArchiveUploader {
       }
 
       if ($this->validateImageFile($tmpImgPath)) {
-        preg_match($this->catalogRegex, $zipMemberName, $catalogNumber);
-        $catalogNumber = $catalogNumber[0];
-        $this->logMsg('info', "Catalog number is $catalogNumber");
-
         $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
 
         // Create a skeleton record
         if ($assocOccId === -1) {
-          $this->logMsg('warn', "No occurrence for for catalog number $catalogNumber. Skipping...");
-          // TODO: Re-enable skeleton records when catalog number validation
-          // gets better
-          // $this->logMsg('info', "Creating to skeleton record...");
-          // $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
-          // if ($this->conn->query($sql) === TRUE) {
-          //   $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-          //   $this->logMsg('info', "Created skeleton record with occid $assocOccId");
-          // } else {
-          //   $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
-          // }
-        } else {
-          // Upload to existing record
-          $this->logMsg('info', "Linking image to occurrence...");
-          $this->processImage($tmpImgPath, $assocOccId);
+           $this->logMsg('info', "Creating to skeleton record...");
+           $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
+           if ($this->conn->query($sql) === TRUE) {
+             $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
+             $this->logMsg('info', "Created skeleton record with occid $assocOccId");
+           } else {
+             $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
+           }
         }
+
+        // Upload to existing record
+        $this->logMsg('info', "Linking image to occurrence...");
+        $this->processImage($tmpImgPath, $assocOccId);
 
       } else {
         $this->logMsg('warn', 'File is invalid, skipping...');
@@ -483,12 +521,6 @@ class ImageArchiveUploader {
         $success = false;
         $this->logMsg('warn', "$fileBaseName is not an image file or may be corrupted");
       }
-    }
-
-    // Check for underscore
-    if ($success && strpos($fileBaseName, '_') === false) {
-      $success = false;
-      $this->logMsg('warn', "$fileBaseName's name should contain an underscore");
     }
 
     return $success;

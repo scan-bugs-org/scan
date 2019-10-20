@@ -35,14 +35,6 @@ EOD;
     return run_sql($collectionPermissionSql);
 }
 
-function getCollectionRegex($collid) {
-    $collectionRegexSql = <<< EOD
-
-EOD;
-
-}
-
-
 $results = [];
 
 if (!$SYMB_UID) {

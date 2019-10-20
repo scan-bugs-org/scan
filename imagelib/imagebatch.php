@@ -155,7 +155,7 @@ if(!$SYMB_UID){
 						<tr>
 							<td style="text-align: right;"><label for="collection">Collection:</label></td>
 							<td>
-								<select id="select-collection" name="collection" required disabled></select>
+								<select id="select-collection" name="collid" required disabled></select>
                 <script>
                   const selectCollection = document.getElementById("select-collection");
                   let allowedCollections = [];
@@ -184,16 +184,6 @@ if(!$SYMB_UID){
                 </script>
 							</td>
 						</tr>
-            </tr>
-            <td>Catalog number regex:</td>
-            <td>
-              <input
-                type="text"
-                name="regex"
-                required
-              >
-            </td>
-            </tr>
 						<tr>
 							<td style="text-align: right;"><label for="file">Image Archive:</label></td>
 							<td><input type="file" name="file" required></td>
@@ -209,10 +199,10 @@ if(!$SYMB_UID){
 
 			<p>
 			<?php
-				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES) && array_key_exists("regex", $_POST)) {
+				if($_SERVER['REQUEST_METHOD'] === 'POST' && array_key_exists('file', $_FILES) && array_key_exists("collid", $_POST)) {
 
-          $uploader = new ImageArchiveUploader($_POST['collection']);
-					$uploader->load($_FILES['file'], '/' . trim($_POST['regex'], '/') . '/');
+          $uploader = new ImageArchiveUploader($_POST['collid']);
+					$uploader->load($_FILES['file']);
 
           $log = $uploader->getLogContent();
           echo "<pre>$log</pre>";
