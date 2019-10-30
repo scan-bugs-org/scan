@@ -114,21 +114,34 @@ if(!$SYMB_UID){
 				unexpected results.
 			</h4>
 			<p>
-				Use this page to batch upload images for a particular collection.
-				Images should jpegs, pngs, or gifs and compressed into a zip file.
-				If you experience problems, save the log output from this page and
-				email it to the site administrator.
+				Use this page to batch upload images for a particular collection. Images should be jpegs, pngs, or gifs and
+        compressed into a zip file. If you experience problems, save the log output from this page and email it to
+        neilscobb@gmail.com. This batch image upload procedure is primarily intended for “Live” collections.
 			</p>
 			<h4>
-        This utility requires that each image file contains the associated
-        catalog number.
-			</h4>
+        This utility now allows for images to create skeletal records, so it does not require that each image file be
+        linked to an existing record (via catalogNumber).
+      </h4>
+      <p>
+        However, each image filename must include a catalogNumber that is compliant with one of the formats we have on
+        record for your collection or it will be rejected. Ideally the file name would start with the file name
+        followed by an underscore and whatever other codes or words you want to add. If the catalog number does not
+        already exist in SCAN it will be created as a skeletal record. The format of the catalogNumber must match with
+        the format we have on record for your collection. It will accept images from multiple formats as long as we
+        have a record of the format(s).
+      </p>
+      <p>
+        We have created a table of formats for each collection based on what was available as of October 8, 2019.
+        If you want to add a new format please contact neilscobb@gmail.com. Catalog numbers that are not already
+        associated with a record in the SCAN database will be rejected.
+      </p>
 			<p>
-				For example, to upload images for the catalog number NAUF4A0007000, the
-				following files could be compressed into a zip archive and uploaded:
+        For example, to upload images for the catalog number NAUF4A0007000, the following files could be compressed
+        into a zip archive and uploaded. The letters following the underscore indicate Dorsal, Lateral and
+        Ventral and are ignored:
 			</p>
 			<ul>
-				<li>someOtherIdentifier_NAUF4A0007000_DLVAPQ1234.jpg</li>
+				<li>NAUF4A0007000_D.jpg</li>
 				<li>NAUF4A0007000_L.jpg</li>
 				<li>NAUF4A0007000_V.jpg</li>
 			</ul>
