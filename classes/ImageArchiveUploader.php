@@ -565,9 +565,9 @@ class ImageArchiveUploader {
       return strtolower(mime_content_type($filePath));
     }
 
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $type = $finfo->file($filePath);
-    $finfo->close();
+    $finfo_obj = finfo_open(FILEINFO_MIME_TYPE);
+    $type = finfo_file($finfo_obj, $filePath);
+    finfo_close($finfo_obj);
 
     return strtolower($type);
   }
