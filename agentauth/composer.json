@@ -1,5 +1,6 @@
 {
-    "require": {
-        "silex/silex": "~1.1"
-    }
+  "require": {
+    "silex/silex": "~1.1",
+    "ext-json": "*"
+  }
 }

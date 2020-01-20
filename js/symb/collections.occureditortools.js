@@ -10,6 +10,18 @@ function openAssocSppAid(){
 	}
 }
 
+function openDynPropsAid(){
+	const dynPropsWindow = open("dynPropsAid.php","assocaid","resizable=0,width=550,height=300,left=20,top=20");
+	if(dynPropsWindow != null){
+		if (dynPropsWindow.opener == null) dynPropsWindow.opener = self;
+		fieldChanged("dynamicproperties");
+		dynPropsWindow.focus();
+	}
+	else{
+		alert("Unable to open associated species tool, which is likely due to your browser blocking popups. Please adjust your browser settings to allow popups from this website.");
+	}
+}
+
 function geoCloneTool(){
 	var f = document.fullform;
 	if(f.locality.value){

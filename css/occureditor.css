@@ -577,12 +577,7 @@ body{
 	padding: 2px;
 }
 
-#associatedTaxaDiv textarea{
-	height:	15px;
-	width:	95%;
-}
-
-#associatedTaxaDiv img{
+#associatedTaxaDiv img, #dynamicPropertiesDiv img {
 	width:	15px;
 	border:	0px;
 }
@@ -613,15 +608,15 @@ body{
 	width:15px;
 }
 
-#fieldNotesDiv{
+#fieldNotesDiv, #dynamicPropertiesDiv {
 	padding: 2px;
 }
 
-#fieldNotesDiv input{
+#fieldNotesDiv input, #dynamicPropertiesDiv input {
 	width: 95%;
 }
 
-#fieldNotesDiv textarea{
+#fieldNotesDiv textarea, #dynamicPropertiesDiv textarea, #associatedTaxaDiv textarea  {
 	width: 95%;
 	resize: vertical;
 }
@@ -637,7 +632,6 @@ body{
 
 #dynamicPropertiesDiv{
 	padding: 2px;
-	display: none;
 	clear: both;
 }
 

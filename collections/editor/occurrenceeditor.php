@@ -1136,7 +1136,7 @@ else{
 												<?php echo (defined('ASSOCIATEDTAXALABEL')?ASSOCIATEDTAXALABEL:'Associated Taxa'); ?>
 												<a href="#" onclick="return dwcDoc('associatedTaxa')"><img class="docimg" src="../../images/qmark.png" style="width:9px;margin-bottom:2px" /></a>
 												<br/>
-												<textarea name="associatedtaxa" tabindex="84" onchange="fieldChanged('associatedtaxa');" style="height:22px;"><?php echo array_key_exists('associatedtaxa',$occArr)?$occArr['associatedtaxa']:''; ?></textarea>
+												<textarea name="associatedtaxa" tabindex="89" onchange="fieldChanged('associatedtaxa');"><?php echo array_key_exists('associatedtaxa',$occArr)?$occArr['associatedtaxa']:''; ?></textarea>
 												<?php
 												if(!isset($ACTIVATEASSOCTAXAAID) || $ACTIVATEASSOCTAXAAID){
 													echo '<a href="#" onclick="openAssocSppAid();return false;"><img src="../../images/list.png" /></a>';
@@ -1155,20 +1155,36 @@ else{
 												<br/>
 												<input type="text" name="occurrenceremarks" tabindex="88" value="<?php echo array_key_exists('occurrenceremarks',$occArr)?$occArr['occurrenceremarks']:''; ?>" onchange="fieldChanged('occurrenceremarks');" title="Occurrence Remarks" />
 											</div>
-                                            <div id="fieldNotesDiv">
-                                                <?php echo (defined('FIELDNOTESLABEL')?FIELDNOTESLABEL:'Field Notes'); ?>
-                                                <a href="#" onclick="return dwcDoc('fieldNotes')"><img class="docimg" src="../../images/qmark.png" style="width:9px;margin-bottom:2px" /></a>
-                                                <br/>
-                                                <textarea name="fieldnotes" tabindex="88.5" onchange="fieldChanged('fieldnotes');" title="Field Notes"><?php echo array_key_exists('fieldnotes',$occArr)?$occArr['fieldnotes']:''; ?></textarea>
-                                                <span id="dynPropToggleSpan" onclick="toggle('dynamicPropertiesDiv');">
-													<img src="../../images/editplus.png" />
-												</span>
-                                            </div>
+
+                      <!-- Field Notes -->
+                      <div id="fieldNotesDiv">
+                        <?php echo (defined('FIELDNOTESLABEL')?FIELDNOTESLABEL:'Field Notes'); ?>
+                        <a href="#" onclick="return dwcDoc('fieldNotes')"><img class="docimg" src="../../images/qmark.png" style="width:9px;margin-bottom:2px" /></a>
+                        <br/>
+                        <textarea
+                          name="fieldnotes"
+                          tabindex="88.5"
+                          onchange="fieldChanged('fieldnotes');"
+                          title="Field Notes"
+                        ><?php echo array_key_exists('fieldnotes',$occArr)?$occArr['fieldnotes']:''; ?></textarea>
+                      </div>
+
+                      <!-- Dynamic Properties -->
 											<div id="dynamicPropertiesDiv">
-												<?php echo (defined('DYNAMICPROPERTIESLABEL')?DYNAMICPROPERTIESLABEL:'Dynamic Properties'); ?>
-												<a href="#" onclick="return dwcDoc('dynamicProperties')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-												<input type="text" name="dynamicproperties" tabindex="89" value="<?php echo array_key_exists('dynamicproperties',$occArr)?$occArr['dynamicproperties']:''; ?>" onchange="fieldChanged('dynamicproperties');" />
+												<?php echo (defined('DYNAMICPROPERTIESLABEL') ? DYNAMICPROPERTIESLABEL:'Dynamic Properties'); ?>
+												<a href="#" onclick="return dwcDoc('dynamicProperties')">
+                          <img class="docimg" src="../../images/qmark.png" style="width:9px;margin-bottom:2px" />
+                        </a>
+                        <br/>
+                        <textarea
+                          name="dynamicproperties"
+                          tabindex="89"
+                          onchange="fieldChanged('dynamicproperties');"
+                          title="<?php echo (defined('DYNAMICPROPERTIESLABEL') ? DYNAMICPROPERTIESLABEL : 'Dynamic Properties'); ?>"
+                        ><?php echo array_key_exists('dynamicproperties',$occArr)?$occArr['dynamicproperties']:''; ?></textarea>
+                        <a href="#" onclick="openDynPropsAid(); return false;"><img src="../../images/list.png" /></a>
 											</div>
+
 											<div style="padding:2px;">
 												<div id="lifeStageDiv">
 													<?php echo (defined('LIFESTAGELABEL')?LIFESTAGELABEL:'Life Stage'); ?>
