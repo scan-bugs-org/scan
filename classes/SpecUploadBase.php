@@ -94,9 +94,23 @@ class SpecUploadBase extends SpecUpload{
 		}
 
 		//Get uploadspectemp metadata
-		$skipOccurFields = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
-			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
-			'previousidentifications','associatedsequences');
+		$skipOccurFields = array(
+		    'dbpk',
+//            'associatedoccurrences',
+            'associatedreferences',
+            'associatedsequences',
+            'collectionid',
+            'collid',
+            'coordinateprecision',
+            'datasetid',
+            'fieldnotes',
+            'initialtimestamp',
+            'institutionid',
+            'occid',
+            'previousidentifications',
+            'tidinterpreted',
+            'verbatimcoordinatesystem',
+        );
 		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
 			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
 			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
@@ -216,32 +230,76 @@ class SpecUploadBase extends SpecUpload{
 		$fieldMap = $this->fieldMap;
 		$symbFields = $this->symbFields;
 		$sourceArr = $this->sourceArr;
-		$translationMap = array('accession'=>'catalognumber','accessionid'=>'catalognumber','accessionnumber'=>'catalognumber',
-				'taxonfamilyname'=>'family','scientificname'=>'sciname','species'=>'specificepithet','commonname'=>'taxonremarks',
-				'observer'=>'recordedby','collector'=>'recordedby','primarycollector'=>'recordedby','field:collector'=>'recordedby','collectedby'=>'recordedby',
-				'collectornumber'=>'recordnumber','collectionnumber'=>'recordnumber','field:collectorfieldnumber'=>'recordnumber',
-				'datecollected'=>'eventdate','date'=>'eventdate','collectiondate'=>'eventdate','observedon'=>'eventdate','dateobserved'=>'eventdate',
-				'cf' => 'identificationqualifier','detby'=>'identifiedby','determinor'=>'identifiedby','determinationdate'=>'dateidentified',
-				'placestatename'=>'stateprovince','state'=>'stateprovince','placecountyname'=>'county','municipiocounty'=>'county',
-				'location'=>'locality','field:localitydescription'=>'locality','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude',
-				'elevationmeters'=>'minimumelevationinmeters','field:associatedspecies'=>'associatedtaxa',
-				'specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks','generalnotes'=>'occurrenceremarks',
-				'plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat','habitatdescription'=>'habitat',
-				'subject_references'=>'tempfield01','subject_recordid'=>'tempfield02');
+		$translationMap = array(
+		    'accession'=>'catalognumber',
+            'accessionid'=>'catalognumber',
+            'accessionnumber'=>'catalognumber',
+            'cf' => 'identificationqualifier',
+            'collectedby'=>'recordedby',
+            'collectiondate'=>'eventdate',
+            'collectionnumber'=>'recordnumber',
+            'collector'=>'recordedby',
+            'collectornumber'=>'recordnumber',
+            'commonname'=>'taxonremarks',
+            'date'=>'eventdate',
+            'datecollected'=>'eventdate',
+            'dateobserved'=>'eventdate',
+            'description'=>'verbatimattributes',
+            'detby'=>'identifiedby',
+            'determinationdate'=>'dateidentified',
+            'determinor'=>'identifiedby',
+            'elevationmeters'=>'minimumelevationinmeters',
+            'field:associatedspecies'=>'associatedtaxa',
+            'field:collector'=>'recordedby',
+            'field:collectorfieldnumber'=>'recordnumber',
+            'field:habitat'=>'habitat',
+            'field:localitydescription'=>'locality',
+            'generalnotes'=>'occurrenceremarks',
+            'habitatdescription'=>'habitat',
+            'latitude'=>'verbatimlatitude',
+            'location'=>'locality',
+            'longitude'=>'verbatimlongitude',
+            'municipiocounty'=>'county',
+            'notes'=>'occurrenceremarks',
+            'observedon'=>'eventdate',
+            'observer'=>'recordedby',
+            'placecountyname'=>'county',
+            'placestatename'=>'stateprovince',
+            'plantdescription'=>'verbatimattributes',
+            'primarycollector'=>'recordedby',
+            'scientificname'=>'sciname',
+            'species'=>'specificepithet',
+            'specimennotes'=>'occurrenceremarks',
+            'state'=>'stateprovince',
+            'subject_recordid'=>'tempfield02',
+            'subject_references'=>'tempfield01',
+            'taxonfamilyname'=>'family',
+        );
 		if($mode == 'ident'){
 			$prefix = 'ID-';
 			$fieldMap = $this->identFieldMap;
 			$symbFields = $this->identSymbFields;
 			$sourceArr = $this->identSourceArr;
-			$translationMap = array('scientificname'=>'sciname','detby'=>'identifiedby','determinor'=>'identifiedby',
-				'determinationdate'=>'dateidentified','notes'=>'identificationremarks','cf' => 'identificationqualifier');
+			$translationMap = array(
+			    'cf' => 'identificationqualifier',
+                'detby'=>'identifiedby',
+                'determinationdate'=>'dateidentified',
+                'determinor'=>'identifiedby',
+                'notes'=>'identificationremarks',
+                'scientificname'=>'sciname',
+            );
 		}
 		elseif($mode == 'image'){
 			$prefix = 'IM-';
 			$fieldMap = $this->imageFieldMap;
 			$symbFields = $this->imageSymbFields;
 			$sourceArr = $this->imageSourceArr;
-			$translationMap = array('accessuri'=>'originalurl','thumbnailaccessuri'=>'thumbnailurl','goodqualityaccessuri'=>'url','creator'=>'owner');
+			$translationMap = array(
+			    'accessuri'=>'originalurl',
+                'creator'=>'owner',
+                'goodqualityaccessuri'=>'url',
+                'thumbnailaccessuri'=>'thumbnailurl',
+            );
 		}
 
 		//Build a Source => Symbiota field Map
@@ -714,20 +772,93 @@ class SpecUploadBase extends SpecUpload{
 			$this->versionOccurrenceEdits();
 		}
 		$this->outputMsg('<li>Updating existing records... </li>');
-		$fieldArr = array('basisOfRecord', 'catalogNumber','otherCatalogNumbers','occurrenceid',
-			'ownerInstitutionCode','institutionID','collectionID','institutionCode','collectionCode',
-			'family','scientificName','sciname','tidinterpreted','genus','specificEpithet','datasetID','taxonRank','infraspecificEpithet',
-			'scientificNameAuthorship','identifiedBy','dateIdentified','identificationReferences','identificationRemarks',
-			'taxonRemarks','identificationQualifier','typeStatus','recordedBy','recordNumber','associatedCollectors',
-			'eventDate','Year','Month','Day','startDayOfYear','endDayOfYear','verbatimEventDate',
-			'habitat','substrate','fieldnumber','occurrenceRemarks','informationWithheld','associatedOccurrences',
-			'associatedTaxa','dynamicProperties','verbatimAttributes','reproductiveCondition','cultivationStatus','establishmentMeans',
-			'lifestage','sex','individualcount','samplingprotocol','preparations',
-			'country','stateProvince','county','municipality','locality','localitySecurity','localitySecurityReason',
-			'decimalLatitude','decimalLongitude','geodeticDatum','coordinateUncertaintyInMeters','footprintWKT','coordinatePrecision',
-			'locationRemarks','verbatimCoordinates','verbatimCoordinateSystem','georeferencedBy','georeferenceProtocol','georeferenceSources',
-			'georeferenceVerificationStatus','georeferenceRemarks','minimumElevationInMeters','maximumElevationInMeters','verbatimElevation',
-			'previousIdentifications','disposition','modified','language','recordEnteredBy','labelProject','duplicateQuantity','processingStatus');
+		$fieldArr = array(
+		    'associatedCollectors',
+            'associatedOccurrences',
+            'associatedTaxa',
+            'basisOfRecord',
+            'catalogNumber',
+            'collectionCode',
+            'collectionID',
+            'coordinatePrecision',
+            'coordinateUncertaintyInMeters',
+            'country',
+            'county',
+            'cultivationStatus',
+            'datasetID',
+            'dateIdentified',
+            'Day',
+            'decimalLatitude',
+            'decimalLongitude',
+            'disposition',
+            'duplicateQuantity',
+            'dynamicProperties',
+            'endDayOfYear',
+            'establishmentMeans',
+            'eventDate',
+            'family',
+            'fieldnumber',
+            'footprintWKT',
+            'genus',
+            'geodeticDatum',
+            'georeferencedBy',
+            'georeferenceProtocol',
+            'georeferenceRemarks',
+            'georeferenceSources',
+            'georeferenceVerificationStatus',
+            'habitat',
+            'identificationQualifier',
+            'identificationReferences',
+            'identificationRemarks',
+            'identifiedBy',
+            'individualcount',
+            'informationWithheld',
+            'infraspecificEpithet',
+            'institutionCode',
+            'institutionID',
+            'labelProject',
+            'language',
+            'lifestage',
+            'locality',
+            'localitySecurity',
+            'localitySecurityReason',
+            'locationRemarks',
+            'maximumElevationInMeters',
+            'minimumElevationInMeters',
+            'modified',
+            'Month',
+            'municipality',
+            'occurrenceid',
+            'occurrenceRemarks',
+            'otherCatalogNumbers',
+            'ownerInstitutionCode',
+            'preparations',
+            'previousIdentifications',
+            'processingStatus',
+            'recordedBy',
+            'recordEnteredBy',
+            'recordNumber',
+            'reproductiveCondition',
+            'samplingprotocol',
+            'scientificName',
+            'scientificNameAuthorship',
+            'sciname',
+            'sex',
+            'specificEpithet',
+            'startDayOfYear',
+            'stateProvince',
+            'substrate',
+            'taxonRank',
+            'taxonRemarks',
+            'tidinterpreted',
+            'typeStatus',
+            'verbatimAttributes',
+            'verbatimCoordinates',
+            'verbatimCoordinateSystem',
+            'verbatimElevation',
+            'verbatimEventDate',
+            'Year',
+        );
 		//Update matching records
 		$sqlFragArr = array();
 		foreach($fieldArr as $v){

@@ -15,10 +15,10 @@ class OccurrenceEditorManager {
 	protected $occurrenceMap = array();
 	private $occFieldArr = array();
 	private $sqlWhere;
-    private $occIndex;
-    private $recLimit;
-    private $orderByStr;
-    private $qryArr = array();
+	private $occIndex;
+	private $recLimit;
+	private $orderByStr;
+	private $qryArr = array();
 	private $crowdSourceMode = 0;
 	private $exsiccatiMode = 0;
 	private $symbUid;
@@ -33,20 +33,92 @@ class OccurrenceEditorManager {
 		else{
 			$this->conn = MySQLiConnectionFactory::getCon("write");
 		}
-		$this->occFieldArr = array('dbpk', 'catalognumber', 'othercatalognumbers', 'occurrenceid','family', 'scientificname', 'sciname',
-			'tidinterpreted', 'scientificnameauthorship', 'identifiedby', 'dateidentified', 'identificationreferences',
-			'identificationremarks', 'taxonremarks', 'identificationqualifier', 'typestatus', 'recordedby', 'recordnumber',
-			'associatedcollectors', 'eventdate', 'year', 'month', 'day', 'startdayofyear', 'enddayofyear', 'fieldnotes',
-			'verbatimeventdate', 'habitat', 'substrate', 'fieldnumber','occurrenceremarks', 'associatedtaxa', 'verbatimattributes',
-			'dynamicproperties', 'reproductivecondition', 'cultivationstatus', 'establishmentmeans',
-			'lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations','datageneralizations',
-			'country', 'stateprovince', 'county', 'municipality', 'locality', 'localitysecurity', 'localitysecurityreason',
-			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
-			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
-			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters','verbatimelevation',
-			'minimumdepthinmeters', 'maximumdepthinmeters', 'verbatimdepth', 'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
-			'labelproject','observeruid','basisofrecord','institutioncode','collectioncode','ownerinstitutioncode','datelastmodified', 'processingstatus',
-			'recordenteredby', 'dateentered');
+		$this->occFieldArr = array(
+			'associatedcollectors',
+			'associatedoccurrences',
+			'associatedtaxa',
+			'basisofrecord',
+			'catalognumber',
+			'collectioncode',
+			'coordinateuncertaintyinmeters',
+			'country',
+			'county',
+			'cultivationstatus',
+			'datageneralizations',
+			'dateentered',
+			'dateidentified',
+			'datelastmodified',
+			'day',
+			'dbpk', 
+			'decimallatitude',
+			'decimallongitude',
+			'disposition',
+			'duplicatequantity',
+			'dynamicproperties',
+			'enddayofyear',
+			'establishmentmeans',
+			'eventdate',
+			'family',
+			'fieldnotes',
+			'fieldnumber',
+			'footprintwkt',
+			'genericcolumn1',
+			'genericcolumn2',
+			'geodeticdatum',
+			'georeferencedby',
+			'georeferenceprotocol',
+			'georeferenceremarks',
+			'georeferencesources',
+			'georeferenceverificationstatus',
+			'habitat',
+			'identificationqualifier',
+			'identificationreferences',
+			'identificationremarks',
+			'identifiedby',
+			'individualcount',
+			'institutioncode',
+			'labelproject',
+			'language',
+			'lifestage',
+			'locality',
+			'localitysecurity',
+			'localitysecurityreason',
+			'locationremarks',
+			'maximumdepthinmeters',
+			'maximumelevationinmeters',
+			'minimumdepthinmeters',
+			'minimumelevationinmeters',
+			'month',
+			'municipality',
+			'observeruid',
+			'occurrenceid',
+			'occurrenceremarks',
+			'othercatalognumbers',
+			'ownerinstitutioncode',
+			'preparations',
+			'processingstatus',
+			'recordedby',
+			'recordenteredby',
+			'recordnumber',
+			'reproductivecondition',
+			'samplingprotocol',
+			'scientificname',
+			'scientificnameauthorship',
+			'sciname',
+			'sex',
+			'startdayofyear',
+			'stateprovince',
+			'substrate',
+			'taxonremarks',
+			'tidinterpreted',
+			'typestatus',
+			'verbatimattributes',
+			'verbatimcoordinates',
+			'verbatimdepth',
+			'verbatimelevation',
+			'verbatimeventdate',
+			'year',
+		);
 	}
 
 	public function __destruct(){
@@ -963,20 +1035,87 @@ class OccurrenceEditorManager {
 	public function addOccurrence($occArr){
 		$status = "SUCCESS: new occurrence record submitted successfully ";
 		if($occArr){
-			$fieldArr = array('basisOfRecord' => 's', 'catalogNumber' => 's', 'otherCatalogNumbers' => 's', 'occurrenceid' => 's',
-				'ownerInstitutionCode' => 's', 'institutionCode' => 's', 'collectionCode' => 's',
-				'family' => 's', 'sciname' => 's', 'tidinterpreted' => 'n', 'scientificNameAuthorship' => 's', 'identifiedBy' => 's', 'dateIdentified' => 's',
-				'identificationReferences' => 's', 'identificationremarks' => 's', 'taxonRemarks' => 's', 'identificationQualifier' => 's', 'typeStatus' => 's',
-				'recordedBy' => 's', 'recordNumber' => 's', 'associatedCollectors' => 's', 'eventDate' => 'd', 'year' => 'n', 'month' => 'n', 'day' => 'n', 'startDayOfYear' => 'n', 'endDayOfYear' => 'n',
-				'verbatimEventDate' => 's', 'habitat' => 's', 'substrate' => 's', 'fieldnumber' => 's', 'occurrenceRemarks' => 's', 'fieldNotes' => 's', 'associatedTaxa' => 's', 'verbatimattributes' => 's',
-				'dynamicProperties' => 's', 'reproductiveCondition' => 's', 'cultivationStatus' => 's', 'establishmentMeans' => 's',
-				'lifestage' => 's', 'sex' => 's', 'individualcount' => 's', 'samplingprotocol' => 's', 'preparations' => 's',
-				'country' => 's', 'stateProvince' => 's', 'county' => 's', 'municipality' => 's', 'locality' => 's', 'localitySecurity' => 'n', 'localitysecurityreason' => 's',
-				'locationRemarks' => 'n', 'decimalLatitude' => 'n', 'decimalLongitude' => 'n', 'geodeticDatum' => 's', 'coordinateUncertaintyInMeters' => 'n', 'verbatimCoordinates' => 's',
-				'footprintwkt' => 's', 'georeferencedBy' => 's', 'georeferenceProtocol' => 's', 'georeferenceSources' => 's', 'georeferenceVerificationStatus' => 's',
-				'georeferenceRemarks' => 's', 'minimumElevationInMeters' => 'n', 'maximumElevationInMeters' => 'n','verbatimElevation' => 's',
-				'minimumDepthInMeters' => 'n', 'maximumDepthInMeters' => 'n', 'verbatimDepth' => 's','disposition' => 's', 'language' => 's', 'duplicateQuantity' => 'n',
-				'labelProject' => 's','processingstatus' => 's', 'recordEnteredBy' => 's', 'observeruid' => 'n', 'dateentered' => 'd', 'genericcolumn2' => 's');
+			$fieldArr = array(
+				'associatedCollectors' => 's',
+				'associatedOccurrences' => 's',
+				'associatedTaxa' => 's',
+				'basisOfRecord' => 's',
+				'catalogNumber' => 's',
+				'collectionCode' => 's',
+				'coordinateUncertaintyInMeters' => 'n',
+				'country' => 's',
+				'county' => 's',
+				'cultivationStatus' => 's',
+				'dateentered' => 'd',
+				'dateIdentified' => 's',
+				'day' => 'n',
+				'decimalLatitude' => 'n',
+				'decimalLongitude' => 'n',
+				'disposition' => 's',
+				'duplicateQuantity' => 'n',
+				'dynamicProperties' => 's',
+				'endDayOfYear' => 'n',
+				'establishmentMeans' => 's',
+				'eventDate' => 'd',
+				'family' => 's',
+				'fieldNotes' => 's',
+				'fieldnumber' => 's',
+				'footprintwkt' => 's',
+				'genericcolumn2' => 's',
+				'geodeticDatum' => 's',
+				'georeferencedBy' => 's',
+				'georeferenceProtocol' => 's',
+				'georeferenceRemarks' => 's',
+				'georeferenceSources' => 's',
+				'georeferenceVerificationStatus' => 's',
+				'habitat' => 's',
+				'identificationQualifier' => 's',
+				'identificationReferences' => 's',
+				'identificationremarks' => 's',
+				'identifiedBy' => 's',
+				'individualcount' => 's',
+				'institutionCode' => 's',
+				'labelProject' => 's',
+				'language' => 's',
+				'lifestage' => 's',
+				'locality' => 's',
+				'localitySecurity' => 'n',
+				'localitysecurityreason' => 's',
+				'locationRemarks' => 'n',
+				'maximumDepthInMeters' => 'n',
+				'maximumElevationInMeters' => 'n',
+				'minimumDepthInMeters' => 'n',
+				'minimumElevationInMeters' => 'n',
+				'month' => 'n',
+				'municipality' => 's',
+				'observeruid' => 'n',
+				'occurrenceid' => 's',
+				'occurrenceRemarks' => 's',
+				'otherCatalogNumbers' => 's',
+				'ownerInstitutionCode' => 's',
+				'preparations' => 's',
+				'processingstatus' => 's',
+				'recordedBy' => 's',
+				'recordEnteredBy' => 's',
+				'recordNumber' => 's',
+				'reproductiveCondition' => 's',
+				'samplingprotocol' => 's',
+				'scientificNameAuthorship' => 's',
+				'sciname' => 's',
+				'sex' => 's',
+				'startDayOfYear' => 'n',
+				'stateProvince' => 's',
+				'substrate' => 's',
+				'taxonRemarks' => 's',
+				'tidinterpreted' => 'n',
+				'typeStatus' => 's',
+				'verbatimattributes' => 's',
+				'verbatimCoordinates' => 's',
+				'verbatimDepth' => 's',
+				'verbatimElevation' => 's',
+				'verbatimEventDate' => 's',
+				'year' => 'n',
+			);
 			$sql = 'INSERT INTO omoccurrences(collid, '.implode(array_keys($fieldArr),',').') '.
 				'VALUES ('.$occArr["collid"];
 			$fieldArr = array_change_key_case($fieldArr);
@@ -1562,6 +1701,14 @@ class OccurrenceEditorManager {
 		$rs->free();
 		asort($retArr);
 		return $retArr;
+	}
+
+	public function addAssociatedOccurrences($jsonListStr) {
+		$sql = "UPDATE omoccurrences SET associatedOccurrences = '$jsonListStr' WHERE occid = $this->occid";
+		if ($this->conn->query($sql)) {
+			return "Associations updated";
+		}
+		return 'Error updating associations: '. $this->conn->error;
 	}
 
 	public function linkChecklistVoucher($clid,$tid){

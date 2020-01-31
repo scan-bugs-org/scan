@@ -22,7 +22,9 @@ require_once "$SERVER_ROOT/config/twig.php";
       echo $twig->render("jsonEditor.twig", [
         "legend" =>  (defined('DYNAMICPROPERTIESLABEL') ? DYNAMICPROPERTIESLABEL : 'Dynamic Properties') . " Editor",
         "origFormName" => "dynamicproperties",
-        "defaultPropName" => "notes"
+        "defaultPropName" => "notes",
+        "keyPlaceholder" => "Property Key",
+        "valuePlaceholder" => "Property Value"
       ]);
     ?>
 	</div>

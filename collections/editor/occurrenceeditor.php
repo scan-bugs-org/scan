@@ -278,6 +278,10 @@ if($SYMB_UID){
 				$statusStr = $occManager->addGeneticResource($_POST);
                 if($SOLR_MODE) $solrManager->updateSOLR();
 			}
+			elseif ($action == "Update Associations") {
+        $statusStr = $occManager->addAssociatedOccurrences($_POST["associatedoccurrences"]);
+        if($SOLR_MODE) { $solrManager->updateSOLR(); }
+      }
 		}
 	}
 

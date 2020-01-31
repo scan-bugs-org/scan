@@ -1,0 +1,75 @@
+<script>
+  function getOccurrenceElement(value) {
+    const newRow = document.createElement("div");
+    const newInput = document.createElement("input");
+    const newImg = document.createElement("img");
+
+    newInput.setAttribute("type", "{{ listType }}");
+    newInput.setAttribute("value", value);
+    newInput.style.width = "75%";
+
+    newImg.setAttribute("src", "../../images/del.png");
+    newImg.setAttribute("alt", "Delete row");
+    newImg.style.cursor = "pointer";
+    newImg.style.width = "1em";
+    newImg.style.marginLeft = "0.75em";
+    newImg.style.marginTop = "auto";
+    newImg.style.marginBottom = "auto";
+    newImg.style.display = "inline-block";
+    newImg.onclick = () => newRow.parentNode.removeChild(newRow);
+
+    newRow.appendChild(newInput);
+    newRow.appendChild(newImg);
+
+    return newRow;
+  }
+
+  function addNewListRow(f) {
+    f.querySelector("#newRows").appendChild(getOccurrenceElement(""));
+  }
+
+  function addExistingListRow(f, value) {
+    f.querySelector("#existingRows").appendChild(getOccurrenceElement(value));
+  }
+
+  function submitListForm(f) {
+    const listValues = [];
+    f.querySelectorAll("input").forEach((inputElem) => {
+      if (inputElem.getAttribute("type") !== "hidden" && inputElem.value !== "") {
+        listValues.push(inputElem.value);
+      }
+    });
+
+    f.querySelector("input[name='{{ listName }}']").value = JSON.stringify(listValues);
+    return true;
+  }
+</script>
+
+<fieldset style="margin-top: 2em;">
+  <legend>
+    <b>{{ legend }}</b>
+    <a href="{{ helpUrl }}" target="_blank">
+      <img class="docimg" src="../../images/qmark.png" style="width:9px;margin-bottom:2px" />
+    </a>
+  </legend>
+  <form id="{{ listName }}" name="{{ listName }}" style="padding: 2em;" method="POST" action="?occid={{ occid }}" onsubmit="return submitListForm(this);">
+    <div id="existingRows"></div>
+    <div id="newRows"></div>
+    <br>
+    <button type="button" style="margin-top: 2em;" onclick="return addNewListRow(this.form);">
+      Add row
+    </button>
+    <button type="submit" name="submitaction" value="Update Associations" style="margin-top: 2em;">
+      Update Associated Occurrences
+    </button>
+
+    <input name="{{ listName }}" type="hidden" value="[]" />
+    <input name="occid" type="hidden" value="{{ occid }}" />
+  </form>
+</fieldset>
+
+<script>
+  {% for val in existingValues | default([]) %}
+    addExistingListRow(document.getElementById("{{ listName }}"), "{{ val }}");
+  {% endfor %}
+</script>

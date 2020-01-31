@@ -2,6 +2,7 @@
 include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
+require_once "$SERVER_ROOT/config/twig.php";
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET['occid'];
@@ -341,6 +342,21 @@ if($userChecklists || $checklistArr){
 			?>
 		</div>
 	</fieldset>
+
+  <!-- Associated Occurrences -->
+  <div id="associatedOccurrencesDiv">
+  <?php
+    echo $twig->render("listEditor.twig", [
+      "legend" => "Associated Occurrences",
+      "listName" => "associatedoccurrences",
+      "listType" => "url",
+      "helpUrl" => "https://dwc.tdwg.org/terms/#dwc:associatedOccurrences",
+      "occid" => $occid,
+      "existingValues" => json_decode(html_entity_decode($occArr["associatedoccurrences"]))
+    ]);
+  ?>
+  </div>
+
 </div>
 <?php
 if(isset($GENBANK_SUB_TOOL_PATH) && file_exists($GENBANK_SUB_TOOL_PATH."/genbankgen/plugin.php")){

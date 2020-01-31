@@ -1,12 +1,21 @@
 <script>
+  // Global object representing the current state of the form
+  const propertyObj = {};
+  const autocompleteOpts = { minLength: 2, autoFocus: true, delay: 200 };
+
   window.addEventListener("load", () => {
     // Resize window to content size
     const innerText = document.getElementById("fieldset");
-    window.resizeTo(innerText.offsetWidth * 1.25, innerText.offsetHeight * 1.5);
-  });
+    window.resizeTo(innerText.offsetWidth * 1.25, innerText.offsetHeight * 2);
 
-  // Global object representing the current state of the form
-  const propertyObj = {};
+    {% if keyAutocomplete is defined %}
+    $(".key").autocomplete({ source: "{{ keyAutocomplete }}" }, autocompleteOpts);
+    {% endif %}
+
+    {% if valAutocomplete is defined %}
+    $(".value").autocomplete({ source: "{{ valAutocomplete }}" }, autocompleteOpts);
+    {% endif %}
+  });
 
   function onPropertyChanged(k, v) {
     if (k !== "") {
@@ -25,10 +34,10 @@
     const newVal = document.createElement("input");
     const newImg = document.createElement("img");
 
-    newKey.placeholder = "Property Key";
+    newKey.placeholder = "{{ keyPlaceholder | default("Key") }}";
     newKey.value = key;
 
-    newVal.placeholder = "Property Value";
+    newVal.placeholder = "{{ valuePlaceholder | default("Value") }}";
     newVal.value = val;
 
     if (key !== "") {
@@ -46,8 +55,11 @@
     newImg.style.cursor = "pointer";
     newImg.style.width = "0.75em";
 
-    newKey.onchange = () => onPropertyChanged(newKey.value, newVal.value);
-    newVal.onchange = () => onPropertyChanged(newKey.value, newVal.value);
+    newKey.addEventListener("change", () => onPropertyChanged(newKey.value, newVal.value));
+    newVal.addEventListener("change", () => onPropertyChanged(newKey.value, newVal.value));
+
+    newKey.classList.add("key");
+    newVal.classList.add("value");
 
     newKeyCol.appendChild(newKey);
     newValCol.appendChild(newVal);
@@ -83,7 +95,7 @@
   </table>
   <div style="margin-top: 1em;">
     <button id="submitButton" onclick="submitForm();">
-      Update properties
+      Update
     </button>
     <button id="addRowButton" onclick="addEmptyRow('new-props');">
       Add row

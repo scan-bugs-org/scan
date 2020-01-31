@@ -11,7 +11,7 @@ function openAssocSppAid(){
 }
 
 function openDynPropsAid(){
-	const dynPropsWindow = open("dynPropsAid.php","assocaid","resizable=0,width=550,height=300,left=20,top=20");
+	const dynPropsWindow = open("dynPropsAid.php","assocaid","resizable=0,width=500,height=500,left=20,top=20");
 	if(dynPropsWindow != null){
 		if (dynPropsWindow.opener == null) dynPropsWindow.opener = self;
 		fieldChanged("dynamicproperties");
