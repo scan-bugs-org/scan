@@ -1,12 +1,11 @@
 <?php
  //error_reporting(E_ALL);
 include_once('../../config/symbini.php');
-header("Content-Type: text/html; charset=".$charset);
- 
+require_once "$SERVER_ROOT/config/twig.php";
 ?>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $charset; ?>">
+	<meta charset=<?php echo (isset($charset) ? $charset : "utf-8"); ?>">
 	<title>Associated Species Entry Aid</title>
 	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
     <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
@@ -89,25 +88,13 @@ header("Content-Type: text/html; charset=".$charset);
 <body style="background-color:white">
 	<!-- This is inner text! -->
 	<div id="innertext" style="background-color:white;">
-		<fieldset style="width:450px;">
-			<legend><b>Associated Species Entry Aid</b></legend>
-			<table>
-        <tbody>
-          <tr>
-            <td><label for="associationType" style="text-align: end;">Association Type:</label></td>
-            <td><input id="associationType" type="text" placeholder="Optional"/></td>
-            <td><small id="associationTypeDefn"></small></td>
-          </tr>
-          <tr>
-            <td><label for="taxonname" style="text-align: end;">Taxon:</label></td>
-            <td><input id="taxonname" type="text"/></td>
-          </tr>
-          <tr>
-            <td><input id="transbutton" type="button" value="Add Name" onclick="addName();" /></td>
-          </tr>
-        </tbody>
-			</table>
-		</fieldset>
+    <?php
+    echo $twig->render("jsonEditor.twig", [
+      "legend" =>  (defined('ASSOCIATEDTAXALABEL') ? ASSOCIATEDTAXALABEL: 'Associated Taxa' ) . ' Editor',
+      "origFormName" => "associatedtaxa",
+      "defaultPropName" => "interactsWith"
+    ]);
+    ?>
 	</div>
 </body>
 </html> 
