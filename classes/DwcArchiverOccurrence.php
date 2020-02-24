@@ -109,6 +109,8 @@ class DwcArchiverOccurrence{
 		$occurFieldArr['dynamicProperties'] = 'o.dynamicProperties';
 		$occurTermArr['associatedTaxa'] = 'http://rs.tdwg.org/dwc/terms/associatedTaxa';
 		$occurFieldArr['associatedTaxa'] = 'o.associatedTaxa';
+        $occurTermArr['associatedOccurrences'] = 'http://rs.tdwg.org/dwc/terms/associatedOccurrences';
+        $occurFieldArr['associatedOccurrences'] = 'o.associatedOccurrences';
 		$occurTermArr['reproductiveCondition'] = 'http://rs.tdwg.org/dwc/terms/reproductiveCondition';
 		$occurFieldArr['reproductiveCondition'] = 'o.reproductiveCondition';
 		$occurTermArr['establishmentMeans'] = 'http://rs.tdwg.org/dwc/terms/establishmentMeans';
