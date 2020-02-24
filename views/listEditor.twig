@@ -52,6 +52,20 @@
       <img class="docimg" src="../../images/qmark.png" style="width:9px;margin-bottom:2px" />
     </a>
   </legend>
+
+  {% if showError %}
+    <div style='color: red; margin-bottom: 1em; margin-top: 1em;'>
+      The current value for {{ listName }} is invalid.
+      Please convert to a list of URLs by adding rows to the form below:
+    </div>
+    <div>
+      <code style='background: lightgrey; padding: 1em; border-radius: 1em; display: block'>
+        {{ errorValue }}
+      </code>
+      <div style="color: red; margin-top: 1em;">is not a valid JSON list</div>
+    </div>
+  {% endif %}
+
   <form id="{{ listName }}" name="{{ listName }}" style="padding: 2em;" method="POST" action="?occid={{ occid }}" onsubmit="return submitListForm(this);">
     <div id="existingRows"></div>
     <div id="newRows"></div>
