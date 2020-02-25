@@ -660,21 +660,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								</div>
 								<?php
 							}
-              if($occArr['associatedoccurrences']){
-                ?>
-                <div style="clear:both;">
-                  <b>Associated Occurrences:</b>
-                  <ul>
-                  <?php
-                    $occurrences = json_decode($occArr['associatedoccurrences']);
-                    for ($i = 0; $i < count($occurrences); $i++) {
-                      echo "<li><a href='$occurrences[$i]'>$occurrences[$i]</a></li>";
-                    }
-                  ?>
-                  </ul>
-                </div>
-                <?php
-              }
 						}
 						if($QUICK_HOST_ENTRY_IS_ACTIVE){
                             if($occArr['verbatimsciname']){
@@ -843,16 +828,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 
             if($occArr['dynamicproperties']){
-            ?>
+                ?>
               <div style="clear:both;">
-                <b>Dynamic Properties:</b><br>
-                <input
-                  readonly
-                  style="font-family: Monospace"
-                  type="text"
-                  value="<?php echo $occArr["dynamicproperties"] ?>">
+                <b>Dynamic Properties: </b>
+                <?php echo $occArr['dynamicproperties']; ?>
               </div>
-
             <?php
             }
 
