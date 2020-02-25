@@ -4,7 +4,7 @@
     const newInput = document.createElement("input");
     const newImg = document.createElement("img");
 
-    newInput.setAttribute("type", "{{ listType }}");
+    newInput.setAttribute("type", "{{ listType | default("text") }}");
     newInput.setAttribute("value", value);
     newInput.style.width = "75%";
 
@@ -53,19 +53,6 @@
     </a>
   </legend>
 
-  {% if showError %}
-    <div style='color: red; margin-bottom: 1em; margin-top: 1em;'>
-      The current value for {{ listName }} is invalid.
-      Please convert to a list of URLs by adding rows to the form below:
-    </div>
-    <div>
-      <code style='background: lightgrey; padding: 1em; border-radius: 1em; display: block'>
-        {{ errorValue }}
-      </code>
-      <div style="color: red; margin-top: 1em;">is not a valid JSON list</div>
-    </div>
-  {% endif %}
-
   <form id="{{ listName }}" name="{{ listName }}" style="padding: 2em;" method="POST" action="?occid={{ occid }}" onsubmit="return submitListForm(this);">
     <div id="existingRows"></div>
     <div id="newRows"></div>
@@ -80,6 +67,7 @@
     <input name="{{ listName }}" type="hidden" value="[]" />
     <input name="occid" type="hidden" value="{{ occid }}" />
   </form>
+
 </fieldset>
 
 <script>

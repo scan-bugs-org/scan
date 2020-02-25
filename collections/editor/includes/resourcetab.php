@@ -347,7 +347,6 @@ if($userChecklists || $checklistArr){
   <div id="associatedOccurrencesDiv">
   <?php
     $associatedOccurs = html_entity_decode($occArr["associatedoccurrences"]);
-    $showError = false;
     try {
       $currentOccs = json_decode(
         $associatedOccurs,
@@ -357,16 +356,12 @@ if($userChecklists || $checklistArr){
       );
 
     } catch (Exception $e) {
-      $showError = true;
-      $currentOccs = [];
+      $currentOccs = [$associatedOccurs];
     }
 
     echo $twig->render("listEditor.twig", [
       "legend" => "Associated Occurrences",
-      "showError" => $showError,
-      "errorValue" => $associatedOccurs,
       "listName" => "associatedoccurrences",
-      "listType" => "url",
       "helpUrl" => "https://dwc.tdwg.org/terms/#dwc:associatedOccurrences",
       "occid" => $occid,
       "existingValues" => $currentOccs

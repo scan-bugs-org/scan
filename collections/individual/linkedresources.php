@@ -177,14 +177,15 @@ $indManager->setOccid($occid);
               512,
               JSON_THROW_ON_ERROR
           );
+      } catch (Exception $e) {
+          $currentOccs = [$associatedOccurs];
+      }
 
-          echo $twig->render("listViewer.twig", [
-              "legend" => "Associated Occurrences",
-              "helpUrl" => "https://dwc.tdwg.org/terms/#dwc:associatedOccurrences",
-              "list" => $currentOccs
-          ]);
-
-      } catch (Exception $e) {}
+      echo $twig->render("listViewer.twig", [
+          "legend" => "Associated Occurrences",
+          "helpUrl" => "https://dwc.tdwg.org/terms/#dwc:associatedOccurrences",
+          "list" => $currentOccs
+      ]);
       ?>
   </div>
 </div>
