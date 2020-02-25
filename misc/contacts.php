@@ -29,16 +29,19 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<!-- This is inner text! -->
 		<div id="innertext">
 			<p>For Information about the SCAN Project, <b>including setting up a new collection:</b></p>
-			<p>Neil Cobb<br>
-			<a href="mailto:Neil.Cobb@nau.edu">Neil.Cobb@nau.edu</a><br>
-			Northern Arizona University<br>
-			<br>
-			928-607-4075</p>
+			<p>
+        Neil Cobb<br>
+        <a href="mailto:Neil.Cobb@nau.edu">Neil.Cobb@nau.edu</a><br>
+        Northern Arizona University<br>
+        928-607-4075
+      </p>
+      <hr>
 			<p>For Technical Assistance or Questions:</p>
-
-			<p>Evin Dunn<br>
-			<a href="mailto:emd269@nau.edu">emd269@nau.edu</a><br>
-			Northern Arizona University</p>
+			<p>
+        Evin Dunn<br>
+        <a href="mailto:emd269@nau.edu">emd269@nau.edu</a><br>
+        Northern Arizona University
+      </p>
 		</div>
 
 		<?php
