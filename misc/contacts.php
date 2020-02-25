@@ -32,14 +32,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			<p>Neil Cobb<br>
 			<a href="mailto:Neil.Cobb@nau.edu">Neil.Cobb@nau.edu</a><br>
 			Northern Arizona University<br>
-			Director, Merriam-Powell Center for Environmental Research
 			<br>
 			928-607-4075</p>
 			<p>For Technical Assistance or Questions:</p>
-			
-			<p>Lindsie McCabe<br>
-			<a href="mailto:Lindsie.McCabe@nau.edu">Lindsie.McCabe@nau.edu</a><br>
-			Northern Arizona University</p>
 
 			<p>Evin Dunn<br>
 			<a href="mailto:emd269@nau.edu">emd269@nau.edu</a><br>
