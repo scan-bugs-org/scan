@@ -90,9 +90,9 @@ class OccurrenceIndividualManager extends Manager{
 			if(!$this->occArr) $this->loadOccurData();
 			if($fieldKey){
 				if(array_key_exists($fieldKey,$this->occArr)){
-					return $this->occArr($fieldKey);
+					return $this->occArr[$fieldKey];
 				}
-				return;
+				return null;
 			}
 		}
 		return $this->occArr;
@@ -109,7 +109,8 @@ class OccurrenceIndividualManager extends Manager{
 			'o.decimallatitude, o.decimallongitude, o.geodeticdatum, o.coordinateuncertaintyinmeters, o.verbatimcoordinates, '.
 			'o.georeferenceremarks, o.verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
 			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.associatedoccurrences, o.dynamicproperties, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
-			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified';
+			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified, ' .
+            'o.associatedoccurrences';
         $sql .= ($QUICK_HOST_ENTRY_IS_ACTIVE?', oas.verbatimsciname ':' ');
         $sql .= 'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
         $sql .= ($QUICK_HOST_ENTRY_IS_ACTIVE?'LEFT JOIN omoccurassociations oas ON o.occid = oas.occid ':'');
