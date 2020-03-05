@@ -91,7 +91,7 @@ header("Content-Type: text/html; charset=".$charset);
             SCAN currently
             serves <?php echo number_format($occurrence_count); ?> records for
             over 238,177 species, and over 2,276,630 specimen/label images
-            (<?php echo date('Y-m-d H:i:s') . ' ' . date_default_timezone_get(); ?>).
+            (<?php echo date('Y-m-d H:i:s') . ' ' . trim(date_default_timezone_get()); ?>).
           </div>
       <?php
         }
