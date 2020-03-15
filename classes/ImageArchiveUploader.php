@@ -298,7 +298,7 @@ class ImageArchiveUploader {
            $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
            if ($this->conn->query($sql) === TRUE) {
              $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-             $this->logMsg('info', "Created skeleton record with occid $assocOccId");
+             $this->logMsg('info', "Created skeleton record with occid $assocOccId and catalogNumber $catalogNumber");
            } else {
              $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
            }
