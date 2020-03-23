@@ -51,7 +51,7 @@ class ImageArchiveUploader {
   private $webPixWidth = 1600;
   private $lgPixWidth = 3168;
   private $webFileSizeLimit = 300000;
-  private $jpgCompression= 90;
+  private $jpegCompression= 90;
 
   /**
    * Creates a new archive uploader
