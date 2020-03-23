@@ -1,23 +1,29 @@
-FROM phpdockerio/php73-fpm:latest
+FROM php:7-fpm
 WORKDIR "/symbiota"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update \
-    && apt-get -y --no-install-recommends install \
-        imagemagick \
-        php7.3-mysql \
-        php7.3-pgsql \
-        php7.3-gd \
-        php7.3-odbc \
-        php7.3-zip \
-        php-yaml \
-        php-xml \
-        libjpeg-dev \
-        libpng-dev \
-        libpq-dev \
+RUN apt-get update &&                               \
+    apt-get -y --no-install-recommends install      \
+        git                                         \
+        imagemagick                                 \
+        libjpeg-dev                                 \
+        libpng-dev                                  \
+        libpq-dev                                   \
+        libyaml-dev                                 \
+        libzip-dev                                  \
     && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-RUN apt-get update \
-    && apt-get -y install git \
-    && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+RUN docker-php-ext-install          \
+        gd                          \
+        mysqli                      \
+        pgsql                       \
+        zip                         \
+    && pecl install redis yaml      \
+    && docker-php-ext-enable        \
+        redis                       \
+        yaml
+
+RUN php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');" &&   \
+    php /tmp/composer-setup.php --install-dir=/usr/bin --filename=composer &&           \
+    php -r "unlink('/tmp/composer-setup.php');"

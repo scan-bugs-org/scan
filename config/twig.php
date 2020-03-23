@@ -8,7 +8,8 @@ $loader = new FilesystemLoader(__DIR__ . "/../views");
 $options = [
   "strict_variables" => true,
   "debug" => false,
-  "cache" => "/tmp/.twig-cache"
+//  "cache" => "/tmp/.twig-cache",
+  "cache" => false
 ];
 
 $twig = new Environment($loader, $options);
