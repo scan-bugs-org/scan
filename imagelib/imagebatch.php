@@ -114,26 +114,25 @@ if(!$SYMB_UID){
 				unexpected results.
 			</h4>
 			<p>
-				Use this page to batch upload images for a particular collection. Images should be jpegs, pngs, or gifs and
-        compressed into a zip file. If you experience problems, save the log output from this page and email it to
-        neilscobb@gmail.com. This batch image upload procedure is primarily intended for “Live” collections.
+				The batch upload image module can only be used by individuals that have editing rights for their respective collection. 
+				Images must be jpegs, pngs, or gifs and compressed into a zip file. The zip file cannot be over 1GB. Each image should 
+				be less than 3mb.  Please upload in the evenings or weekends if you have more than 100 images in a zip file. 
+				If you experience problems, save the log output from this page and email it to evin@scan-bugs.org. 
 			</p>
-			<h4>
-        This utility now allows for images to create skeletal records, so it does not require that each image file be
-        linked to an existing record (via catalogNumber).
+      <p>
+        Each image filename must include the DwC <strong>catalogNumber</strong> that is compliant with one of the formats we have on record 
+        for your collection or it will not be linked to the correct record. The file name should start with the <strong>catalogNumber</strong>
+        followed by an underscore and whatever other codes or words you want to add (See example of additional codes that 
+        provide information about the image https://scan-all-bugs.org/?page_id=43).
+      </p>
+      <h4>
+        Currently, a skeletal record will not be created. We will implement this option on a need-only basis.
       </h4>
       <p>
-        However, each image filename must include a catalogNumber that is compliant with one of the formats we have on
-        record for your collection or it will be rejected. Ideally the file name would start with the file name
-        followed by an underscore and whatever other codes or words you want to add. If the catalog number does not
-        already exist in SCAN it will be created as a skeletal record. The format of the catalogNumber must match with
-        the format we have on record for your collection. It will accept images from multiple formats as long as we
-        have a record of the format(s).
-      </p>
-      <p>
-        We have created a table of formats for each collection based on what was available as of October 8, 2019.
-        If you want to add a new format please contact neilscobb@gmail.com. Catalog numbers that are not already
-        associated with a record in the SCAN database will be rejected.
+        We have created a table of <strong>catalogNumber</strong> formats for each collection based on what was available 
+        as of March 12, 2020. If you want to add a new format please contact evin@scan-bugs.org. <strong>catalogNumber</strong> 
+        formats that are not already associated with a record in the SCAN database will be rejected, even if you are 
+        establishing a new skeletal record with an image using the <strong>catalogNumber</strong> in the name of the file image.
       </p>
 			<p>
         For example, to upload images for the catalog number NAUF4A0007000, the following files could be compressed
@@ -145,6 +144,12 @@ if(!$SYMB_UID){
 				<li>NAUF4A0007000_L.jpg</li>
 				<li>NAUF4A0007000_V.jpg</li>
 			</ul>
+      <p>
+        In the log output two numbers will be referenced, the occurrence number (i.e., Symbiota ID in editor display table)
+        and the collection <strong>catalogNumber</strong>. Please make sure that the <strong>catalogNumber</strong> in the 
+        record is printed on the specimen label in the exact same format. Otherwise there could be uncertainty in matching 
+        a specimen record with a specimen. For example NAUF4A0007000 could be interpreted differently than NAUF 4 A 0007000 or NAUF4A7000
+      </p>
       <form
         name="batchImage"
         id="batchImage"
