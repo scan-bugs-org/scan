@@ -239,7 +239,7 @@ class ProfileManager extends Manager{
 			if(array_key_exists("adminEmail",$GLOBALS)){
 				$bodyStr .= "<".$GLOBALS["adminEmail"].">";
 			}
-			$fromAddr = $GLOBALS['ADMIN_EMAIL'];
+			$fromAddr = 'noreply@' . (array_key_exists('HTTP_HOST', $_SERVER) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
             $headerStr = "MIME-Version: 1.0 \r\n".
                 "Content-type: text/html \r\n".
                 "To: ".$emailAddr." \r\n";
