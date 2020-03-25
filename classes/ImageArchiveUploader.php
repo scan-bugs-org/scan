@@ -304,7 +304,7 @@ class ImageArchiveUploader {
            } else {
              $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
            }
-	    }
+	      }
 	      
         // Upload image to record
         $this->logMsg('info', "Linking image to occurrence...");
