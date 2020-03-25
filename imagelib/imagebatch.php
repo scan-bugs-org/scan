@@ -150,6 +150,11 @@ if(!$SYMB_UID){
         record is printed on the specimen label in the exact same format. Otherwise there could be uncertainty in matching 
         a specimen record with a specimen. For example NAUF4A0007000 could be interpreted differently than NAUF 4 A 0007000 or NAUF4A7000
       </p>
+      <h4>
+        It is your responsibility to upload the correct catalog number per image with the correct format. 
+        Any errros that result in erroneous records could take up to 2 weeks for the scan-bugs.org team to fix on your 
+        behalf.
+      </h4>
       <form
         name="batchImage"
         id="batchImage"
