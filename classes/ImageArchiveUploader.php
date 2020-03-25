@@ -294,20 +294,21 @@ class ImageArchiveUploader {
 
         // Or create a skeleton record
         if ($assocOccId === -1) {
-	      $this->logMsg('info', "No catalog number exists for '$catalogNumber', skipping...");
-//            $this->logMsg('info', "Creating to skeleton record...");
-//            $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
-//            if ($this->conn->query($sql) === TRUE) {
-//              $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
-//              $this->logMsg('info', "Created skeleton record with occid $assocOccId and catalogNumber $catalogNumber");
-//            } else {
-//              $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
-//            }
-        } else {
-	      // Upload image to record
-	      $this->logMsg('info', "Linking image to occurrence...");
-	      $this->processImage($tmpImgPath, $assocOccId);
-	}
+// 	      $this->logMsg('info', "No catalog number exists for '$catalogNumber', skipping...");
+           $this->logMsg('info', "Creating to skeleton record...");
+           $sql = ImageArchiveUploader::SQL_SKEL_INSERT . "($this->collId, '$catalogNumber');";
+            
+           if ($this->conn->query($sql) === TRUE) {
+             $assocOccId = $this->getOccurrenceForCatalogNumber($catalogNumber);
+             $this->logMsg('info', "Created skeleton record with occid $assocOccId and catalogNumber $catalogNumber");
+           } else {
+             $this->logMsg('warn', "Failed creating skeleton record for catalog number $catalogNumber: " . $this->conn->error);
+           }
+	    }
+	      
+        // Upload image to record
+        $this->logMsg('info', "Linking image to occurrence...");
+        $this->processImage($tmpImgPath, $assocOccId);
 
 
       } else {
