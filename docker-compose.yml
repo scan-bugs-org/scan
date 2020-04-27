@@ -2,43 +2,49 @@ version: '3.7'
 
 services:
   nginx:
-    image: nginx:alpine
-    container_name: nginx
+    image: nginx:stable
+    container_name: scan-nginx
     working_dir: /symbiota
     volumes:
       - ./:/symbiota
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - 80:80
+    networks:
+      - scan
 
   php:
     build: ./docker/php-fpm
-    container_name: php
+    container_name: scan-php
     working_dir: /symbiota
     volumes:
       - ./:/symbiota
-      - ./docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini
+      - ./docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini:ro
+      - ./docker/php-fpm/www-overrides.conf:/usr/local/etc/php-fpm.d/zzz-overrides.conf:ro
+    networks:
+      - scan
 
-  mysql:
+  mariadb:
     image: mariadb:10.3
-    container_name: mysql
+    container_name: scan-mariadb
     restart: always
     command: "--default-authentication-plugin=mysql_native_password"
     volumes:
-      - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf
-      - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d
-      - scan-db:/var/lib/mysql
+      - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
+      - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d:ro
+      - /data/dockervols/scan-db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: symbiota
     ports:
       - 3308:3306
-
-  redis:
-    image: redis:5
-    container_name: redis
+    networks:
+      - scan
 
 volumes:
   scan-db:
     name: scan-db
+
+networks:
+  scan:
 
