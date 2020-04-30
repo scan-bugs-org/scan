@@ -51,7 +51,7 @@ if($isEditor){
 ?>
 <html>
 <head>
-    <title><?php echo $collMetadata['collectionname']; ?> Fieldguide Results Viewer</title>
+    <title>Fieldguide Results Viewer</title>
     <link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
     <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
     <link rel="stylesheet" href="../../css/jquery-ui.css" type="text/css" />
