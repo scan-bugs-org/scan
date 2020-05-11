@@ -836,11 +836,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <?php
             }
 
-            if($occArr['associatedOccurrences']){
+            if(array_key_exists('associatedoccurrences', $occArr) && $occArr['associatedoccurrences']){
                 ?>
               <div style="clear:both;">
                 <b>Associated Occurrences: </b>
-                  <?php echo $occArr['associatedOccurrences']; ?>
+                  <?php echo $occArr['associatedoccurrences']; ?>
               </div>
             <?php
             }
