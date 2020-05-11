@@ -836,6 +836,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <?php
             }
 
+            if($occArr['associatedOccurrences']){
+                ?>
+              <div style="clear:both;">
+                <b>Associated Occurrences: </b>
+                  <?php echo $occArr['associatedOccurrences']; ?>
+              </div>
+            <?php
+            }
+
 						//Rights
 						$rightsStr = $collMetadata['rights'];
 						if($collMetadata['rights']){
