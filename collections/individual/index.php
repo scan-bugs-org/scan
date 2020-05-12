@@ -840,7 +840,16 @@ header("Content-Type: text/html; charset=".$CHARSET);
                 ?>
               <div style="clear:both;">
                 <b>Associated Occurrences: </b>
-                  <?php echo $occArr['associatedoccurrences']; ?>
+                  <?php
+                    $assocOccur = $occArr['associatedoccurrences'];
+                    // Make any contained urls links
+                    $assocOccur = preg_replace(
+                      "/(http.+)(?=(\s|$))/",
+                      "<a href='$1'>$1</a>",
+                      $assocOccur
+                    );
+                    echo $assocOccur;
+                  ?>
               </div>
             <?php
             }
