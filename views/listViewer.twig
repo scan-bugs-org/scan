@@ -3,10 +3,12 @@
     {{ legend }}
     {% if helpUrl %}
       <a href="{{ helpUrl }}">
-        <img
-          class="docimg" src="{{ serverRoot | default('.') }}/images/qmark.png"
-          alt="help"
-        >
+        <small>
+          <img
+            src="{{ serverRoot | default('.') }}/images/qmark.png"
+            alt="help"
+          >
+        </small>
       </a>
     {% endif %}
   </legend>
