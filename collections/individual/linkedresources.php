@@ -189,7 +189,12 @@ $indManager->setOccid($occid);
               JSON_THROW_ON_ERROR
           );
       } catch (Exception $e) {
-          $currentOccs = [$associatedOccurs];
+          if ($associatedOccurs !== "") {
+              $currentOccs = [$associatedOccurs];
+          }
+          else {
+            $currentOccs = [];
+          }
       }
 
       // Populate links for each
