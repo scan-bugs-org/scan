@@ -13,6 +13,26 @@ class OccurrenceUtilities {
  	
  	public function __destruct(){
  	}
+
+	/**
+	 * Detects links in the given $targetStr and surrounds them with an <a> tag
+	 * @param $targetStr String to examine/convert
+	 * @return string
+	 */
+ 	public static function findAndCreateLinks($targetStr) {
+		try {
+			$res = preg_replace(
+				"/(http[^\s;,]+)(?=(\s|;|,|\Z))/",
+				"<a href='$1'>$1</a>",
+				$targetStr
+			);
+		} catch (Exception $e) {
+			error_log($e);
+			return $targetStr;
+		}
+
+		return $res;
+	}
 	
 	/*
 	 * INPUT: String representing a verbatim date 
