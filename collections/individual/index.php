@@ -850,7 +850,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                     }
                     // Make any contained urls links
                     $assocOccur = preg_replace(
-                      "/(http.+)(?=(\s|;|,|\Z))/",
+                      "/(http[^\s;,]+)(?=(\s|;|,|\Z))/",
                       "<a href='$1'>$1</a>",
                       $assocOccur
                     );
