@@ -198,6 +198,7 @@ $indManager->setOccid($occid);
       }, $currentOccs);
 
       echo $twig->render("listViewer.twig", [
+          "serverRoot" => "../../",
           "legend" => "Associated Occurrences",
           "helpUrl" => "https://dwc.tdwg.org/terms/#dwc:associatedOccurrences",
           "list" => $currentOccs
