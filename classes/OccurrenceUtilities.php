@@ -23,7 +23,7 @@ class OccurrenceUtilities {
 		try {
 			$res = preg_replace(
 				"/(http[^\s;,]+)(?=(\s|;|,|\Z))/",
-				"<a href='$1'>$1</a>",
+				"<a href='$1' target='_blank'>$1</a>",
 				$targetStr
 			);
 		} catch (Exception $e) {
