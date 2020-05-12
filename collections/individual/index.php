@@ -841,7 +841,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
               <div style="clear:both;">
                 <b>Associated Occurrences: </b>
                   <?php
-                    $assocOccur = $occArr['associatedoccurrences'];
+                    try {
+                        $assocOccur = json_decode($occArr['associatedoccurrences']);
+                        $assocOccur = implode(', ', $assocOccur);
+                    }
+                    catch (Exception $e) {
+                        $assocOccur = $occArr['associatedoccurrences'];
+                    }
                     // Make any contained urls links
                     $assocOccur = preg_replace(
                       "/(http.+)(?=(\s|;|,|\Z))/",
