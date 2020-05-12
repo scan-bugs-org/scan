@@ -850,6 +850,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
                             }
                             $aoList .= "</ul>";
                             $assocOccur = $aoList;
+                        } else if (is_array($assocOccur)) {
+                          $assocOccur = $assocOccur[0];
                         }
                     }
                     catch (Exception $e) {
