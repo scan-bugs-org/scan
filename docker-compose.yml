@@ -32,12 +32,12 @@ services:
     volumes:
       - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
       - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d:ro
-      - /data/dockervols/scan-db:/var/lib/mysql
+      - scan-db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: symbiota
     ports:
-      - 3308:3306
+      - 3306:3306
     networks:
       - scan
 

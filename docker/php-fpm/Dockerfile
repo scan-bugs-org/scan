@@ -12,6 +12,7 @@ RUN apt-get update && \
         libpq-dev \
         libyaml-dev \
         libzip-dev \
+        unzip \
     && apt-get clean; rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN docker-php-ext-install \

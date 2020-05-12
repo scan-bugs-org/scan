@@ -3,22 +3,9 @@
   const propertyObj = {};
   const autocompleteOpts = { minLength: 2, autoFocus: true, delay: 200 };
 
-  window.addEventListener("load", () => {
-    // Resize window to content size
-    const innerText = document.getElementById("fieldset");
-    window.resizeTo(innerText.offsetWidth * 1.25, innerText.offsetHeight * 2);
-
-    {% if keyAutocomplete is defined %}
-    $(".key").autocomplete({ source: "{{ keyAutocomplete }}" }, autocompleteOpts);
-    {% endif %}
-
-    {% if valAutocomplete is defined %}
-    $(".value").autocomplete({ source: "{{ valAutocomplete }}" }, autocompleteOpts);
-    {% endif %}
-  });
-
   function onPropertyChanged(k, v) {
-    if (k !== "") {
+    console.log(`"${k}": "${v}"`);
+    if (v !== "") {
       propertyObj[k] = v;
     }
   }
@@ -42,6 +29,7 @@
 
     if (key !== "") {
       propertyObj[key] = val;
+      newKey.readOnly = true;
     }
 
     newImg.src = "../../images/del.png";
@@ -86,6 +74,20 @@
     opener.document.fullform.{{ origFormName }}.value = propertyObjStr;
     window.close();
   }
+
+  window.addEventListener("load", () => {
+    // Resize window to content size
+    const innerText = document.getElementById("fieldset");
+    window.resizeTo(innerText.offsetWidth * 1.25, innerText.offsetHeight * 2);
+
+    {% if keyAutocomplete is defined %}
+    $(".key").autocomplete({ source: "{{ keyAutocomplete }}" }, autocompleteOpts);
+    {% endif %}
+
+    {% if valAutocomplete is defined %}
+    $(".value").autocomplete({ source: "{{ valAutocomplete }}" }, autocompleteOpts);
+    {% endif %}
+  });
 </script>
 <fieldset id="fieldset" style="width:450px;">
   <legend><b>{{ legend }}</b></legend>
