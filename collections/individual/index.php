@@ -844,7 +844,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                     $assocOccur = $occArr['associatedoccurrences'];
                     // Make any contained urls links
                     $assocOccur = preg_replace(
-                      "/(http.+)(?=(\s|$))/",
+                      "/(http.+)(?=(\s|;|,|\Z))/",
                       "<a href='$1'>$1</a>",
                       $assocOccur
                     );
