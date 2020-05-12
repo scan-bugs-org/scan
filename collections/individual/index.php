@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT . '/classes/OccurrenceIndividualManager.php');
 include_once($SERVER_ROOT . '/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT . '/classes/RdfUtility.php');
-include_once(__DIR__ . '../../classes/OccurrenceUtilities.php');
+include_once(__DIR__ . '/../../classes/OccurrenceUtilities.php');
 
 $occid = array_key_exists("occid", $_REQUEST) ? trim($_REQUEST["occid"]) : 0;
 $collid = array_key_exists("collid", $_REQUEST) ? trim($_REQUEST["collid"]) : 0;
