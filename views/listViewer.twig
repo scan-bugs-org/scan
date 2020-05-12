@@ -1,6 +1,6 @@
 <fieldset>
   <legend>{{ legend }}</legend>
-  {% if list | length > 0 %}
+  {% if list is iterable and list | length > 0 %}
     <ul>
       {% for item in list %}
         <li>{{ item | raw }}</li>
