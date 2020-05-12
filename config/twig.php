@@ -13,6 +13,6 @@ $options = [
 ];
 
 if (!file_exists($cacheDir)) {
-    mkdir($cacheDir, 0700);
+    mkdir($cacheDir, 0700, true);
 }
 $twig = new Environment($loader, $options);

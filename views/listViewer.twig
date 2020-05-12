@@ -1,5 +1,15 @@
 <fieldset>
-  <legend>{{ legend }}</legend>
+  <legend>
+    {{ legend }}
+    {% if helpUrl %}
+      <a href="{{ helpUrl }}">
+        <img
+          class="docimg" src="{{ serverRoot | default('.') }}/images/qmark.png"
+          alt="help"
+        >
+      </a>
+    {% endif %}
+  </legend>
   {% if list is iterable and list | length > 0 %}
     <ul>
       {% for item in list %}
