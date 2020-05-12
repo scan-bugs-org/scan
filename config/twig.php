@@ -4,7 +4,7 @@ require_once __DIR__ . "/../vendor/autoload.php";
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-$cacheDir = "/tmp/.twig-cache";
+$cacheDir = "/var/tmp/php/.twig-cache";
 $loader = new FilesystemLoader(__DIR__ . "/../views");
 $options = [
   "strict_variables" => true,
