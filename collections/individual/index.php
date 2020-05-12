@@ -843,7 +843,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   <?php
                     try {
                         $assocOccur = json_decode($occArr['associatedoccurrences']);
-                        $assocOccur = implode(', ', $assocOccur);
+                        if (is_array($assocOccur) && count($assocOccur) > 1) {
+                            $aoList = "<ul>";
+                            foreach ($assocOccur as $ao) {
+                              $aoList .= "<li>$ao</li>";
+                            }
+                            $aoList .= "</ul>";
+                            $assocOccur = $aoList;
+                        }
                     }
                     catch (Exception $e) {
                         $assocOccur = $occArr['associatedoccurrences'];
