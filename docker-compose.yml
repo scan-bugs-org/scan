@@ -33,6 +33,7 @@ services:
       - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
       - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d:ro
       - scan-db:/var/lib/mysql
+      - /data/scan-imglib:/imglib
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: symbiota
