@@ -56,9 +56,10 @@ header("Content-Type: text/html; charset=".$charset);
                 The Symbiota Collections of Arthropods Network (SCAN) serves specimen occurrence records and images from over
                 100 North American arthropod collections for <b>all</b> arthropod taxa. The focus is on North America but global in scope.
                 SCAN is built on <a href="http://symbiota.org/docs/" target="_blank">Symbiota</a>, a web-based collections database system that is used for other taxonomic data portals,
-                including (Symbiota Portals). SCAN is the primary repository for occurrence data produced by the three continuing
+                including (Symbiota Portals). SCAN is the primary repository for occurrence data produced by the four continuing
                 Thematic Collections Networks (TCNs), the Southwest Collections of Arthropods Network (SCAN TCN), the Lepidoptera
-                of North America Network (LepNet TCN), and arthropod data produced by <a href="http://invertebase.org/portal/index.php" target="_blank">InvertEBase</a> TCN. InvertEBase serves occurrence
+                of North America Network (LepNet TCN), Terrestrial Parasite Tracker (TPT), and arthropod data produced by
+                <a href="http://invertebase.org/portal/index.php" target="_blank">InvertEBase</a> TCN. InvertEBase serves occurrence
                 data for mollusk and other non-arthropod taxa. We also host observational data, the largest data provider is iNaturalist.
                 Each collection is primarily responsible for their data and we have structured the database to make it easy to include
                 collections of interest when querying the database.
