@@ -431,15 +431,19 @@ class OccurrenceDuplicate {
 				'ORDER BY recordnumber';
 			//echo $sql;
 			$result = $this->conn->query($sql);
-            while ($row = $result->fetch_assoc()) {
-                foreach ($row as $k => $v) {
-                    $vStr = trim($v);
-                    $retArr[$row['occid']][$k] = $vStr;
-                    //Identify relevant fields
-                    if ($vStr) $relArr[$k] = '';
+			if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    foreach ($row as $k => $v) {
+                        $vStr = trim($v);
+                        $retArr[$row['occid']][$k] = $vStr;
+                        //Identify relevant fields
+                        if ($vStr) $relArr[$k] = '';
+                    }
                 }
+                $result->free();
+            } else {
+			    error_log("Got no results for $sql");
             }
-            $result->free();
 			//Adjust sort of relevant fields according to
 			foreach($targetFields as $tfVal){
 				if(array_key_exists($tfVal,$relArr)) $this->relevantFields[] = $tfVal;
