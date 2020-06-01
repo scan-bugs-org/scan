@@ -380,32 +380,66 @@ class OccurrenceDuplicate {
 	public function getDupesOccid($occidQuery){
 		$retArr = array();
 		if($occidQuery){
-			$targetFields = array('family', 'sciname', 'scientificNameAuthorship',
-				'identifiedBy', 'dateIdentified', 'identificationReferences', 'identificationRemarks', 'taxonRemarks', 'identificationQualifier',
-				'recordedBy', 'recordNumber', 'associatedCollectors', 'eventDate', 'verbatimEventDate',
-				'country', 'stateProvince', 'county', 'locality', 'decimalLatitude', 'decimalLongitude', 'geodeticDatum',
-				'coordinateUncertaintyInMeters', 'verbatimCoordinates', 'georeferencedBy', 'georeferenceProtocol',
-				'georeferenceSources', 'georeferenceVerificationStatus', 'georeferenceRemarks',
-				'minimumElevationInMeters', 'maximumElevationInMeters', 'verbatimElevation',
-				'habitat', 'substrate', 'occurrenceRemarks', 'associatedTaxa', 'dynamicProperties',
-				'verbatimAttributes','reproductiveCondition', 'cultivationStatus', 'establishmentMeans', 'typeStatus');
+            $targetFields = array(
+                'associatedCollectors',
+                'associatedTaxa',
+                'coordinateUncertaintyInMeters',
+                'country',
+                'county',
+                'cultivationStatus',
+                'dateIdentified',
+                'decimalLatitude',
+                'decimalLongitude',
+                'dynamicProperties',
+                'establishmentMeans',
+                'eventDate',
+                'family', 
+                'geodeticDatum',
+                'georeferencedBy',
+                'georeferenceProtocol',
+                'georeferenceRemarks',
+                'georeferenceSources',
+                'georeferenceVerificationStatus',
+                'habitat',
+                'identificationQualifier',
+                'identificationReferences',
+                'identificationRemarks',
+                'identifiedBy', 
+                'locality',
+                'maximumElevationInMeters',
+                'minimumElevationInMeters',
+                'occurrenceRemarks',
+                'recordedBy',
+                'recordNumber',
+                'reproductiveCondition',
+                'scientificNameAuthorship',
+                'sciname', 
+                'stateProvince',
+                'substrate',
+                'taxonRemarks',
+                'typeStatus',
+                'verbatimAttributes',
+                'verbatimCoordinates',
+                'verbatimElevation',
+                'verbatimEventDate',
+            );
 			$relArr = array();
 			$sql = 'SELECT c.collectionName, c.institutionCode, c.collectionCode, o.occid, o.collid, o.tidinterpreted, '.
-				'o.catalogNumber, o.otherCatalogNumbers, '.implode(',',$targetFields).
-				' FROM omcollections c INNER JOIN omoccurrences o ON c.collid = o.collid '.
-				'WHERE (o.occid IN('.$occidQuery.')) '.
+				'o.catalogNumber, o.otherCatalogNumbers, '. implode(',' , $targetFields) . ' ' .
+				'FROM omcollections c INNER JOIN omoccurrences o ON c.collid = o.collid '.
+				'WHERE (o.occid IN(' . $occidQuery . ')) '.
 				'ORDER BY recordnumber';
 			//echo $sql;
 			$result = $this->conn->query($sql);
-			while($row = $result->fetch_assoc()) {
-				foreach($row as $k => $v){
-					$vStr = trim($v);
-					$retArr[$row['occid']][$k] = $vStr;
-					//Identify relevant fields
-					if($vStr) $relArr[$k] = '';
-				}
-			}
-			$result->free();
+            while ($row = $result->fetch_assoc()) {
+                foreach ($row as $k => $v) {
+                    $vStr = trim($v);
+                    $retArr[$row['occid']][$k] = $vStr;
+                    //Identify relevant fields
+                    if ($vStr) $relArr[$k] = '';
+                }
+            }
+            $result->free();
 			//Adjust sort of relevant fields according to
 			foreach($targetFields as $tfVal){
 				if(array_key_exists($tfVal,$relArr)) $this->relevantFields[] = $tfVal;
