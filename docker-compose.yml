@@ -32,7 +32,7 @@ services:
     volumes:
       - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
       - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d:ro
-      - scan-db:/var/lib/mysql
+      - /data/dockervols/scan-db:/var/lib/mysql
       - /data/scan-imglib:/imglib
     environment:
       MYSQL_ROOT_PASSWORD: password
@@ -42,9 +42,13 @@ services:
     networks:
       - scan
 
-volumes:
-  scan-db:
-    name: scan-db
+  solr:
+    build: ./docker/solr
+    container_name: scan-solr
+    volumes:
+      - /data/dockervols/scan-solr:/opt/solr/server/solr
+    networks:
+      - scan
 
 networks:
   scan:
