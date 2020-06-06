@@ -19,7 +19,7 @@ services:
     working_dir: /symbiota
     volumes:
       - ./:/symbiota
-      - ./docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini:ro
+      - ./docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/zzz-overrides.ini:ro
       - ./docker/php-fpm/www-overrides.conf:/usr/local/etc/php-fpm.d/zzz-overrides.conf:ro
     networks:
       - scan

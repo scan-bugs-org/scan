@@ -6,19 +6,18 @@ $(document).ready(function() {
 });
 
 function toggle(target){
-	var ele = document.getElementById(target);
-	if(ele){
-		if(ele.style.display=="none"){
-			if(ele.id.substring(0,5) == "minus" || ele.id.substring(0,4) == "plus"){
-				ele.style.display = "inline";
-	  		}
-			else{
-				ele.style.display = "block";
-			}
-  		}
-	 	else {
-	 		ele.style.display="none";
-	 	}
+	const ele = document.getElementById(target);
+
+	if(ele && ele.style.display === "none"){
+		if(ele.id.startsWith("minus") || ele.id.startsWith("plus")){
+			ele.style.display = "inline";
+		}
+		else if (ele) {
+			ele.style.display = "block";
+		}
+	}
+	else {
+		ele.style.display = "none";
 	}
 }
 
@@ -158,4 +157,21 @@ function checkKey(e){
 	if(key == 13){
 		document.collections.submit();
 	}
+}
+
+function toggleExpandCollapseAll(expanded) {
+	const expandBtn = $("#expand-all");
+	const collapseBtn = $("#collapse-all");
+	const allExpandCollapseBtns = $("a.region-toggle");
+
+	if (expanded === true) {
+		expandBtn.addClass("hidden");
+		collapseBtn.removeClass("hidden");
+
+	} else if (expanded === false) {
+		collapseBtn.addClass("hidden");
+		expandBtn.removeClass("hidden");
+	}
+
+	allExpandCollapseBtns.click();
 }

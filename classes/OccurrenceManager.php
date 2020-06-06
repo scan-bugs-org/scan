@@ -676,8 +676,9 @@ class OccurrenceManager{
 							<input id="cat-<?php echo $idStr; ?>-Input" name="cat[]" value="<?php echo $catid; ?>" type="checkbox" onclick="selectAllCat(this,'cat-<?php echo $idStr; ?>')" checked />
 						</td>
 						<td style="padding:9px 5px;width:10px;">
-							<a href="#" onclick="toggleCat('<?php echo $idStr; ?>');return false;">
-								<img id="plus-<?php echo $idStr; ?>" src="../images/plus_sm.png" style="<?php echo ($targetCatID != $catid?'':'display:none;') ?>" /><img id="minus-<?php echo $idStr; ?>" src="../images/minus_sm.png" style="<?php echo ($targetCatID != $catid?'display:none;':'') ?>" />
+							<a class="region-toggle" href="#" onclick="toggleCat('<?php echo $idStr; ?>');return false;">
+								<img id="plus-<?php echo $idStr; ?>" src="../images/plus_sm.png" style="<?php echo ($targetCatID != $catid?'':'display:none;') ?>" />
+                <img id="minus-<?php echo $idStr; ?>" src="../images/minus_sm.png" style="<?php echo ($targetCatID != $catid?'display:none;':'') ?>" />
 							</a>
 						</td>
 						<td style="padding-top:8px;">
