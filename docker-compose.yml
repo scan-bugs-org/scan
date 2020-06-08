@@ -7,6 +7,7 @@ services:
     working_dir: /symbiota
     volumes:
       - ./:/symbiota
+      - /data/scan-imglib:/imglib
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - 80:80
@@ -19,6 +20,7 @@ services:
     working_dir: /symbiota
     volumes:
       - ./:/symbiota
+      - /data/scan-imglib:/imglib
       - ./docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/zzz-overrides.ini:ro
       - ./docker/php-fpm/www-overrides.conf:/usr/local/etc/php-fpm.d/zzz-overrides.conf:ro
     networks:
@@ -33,7 +35,6 @@ services:
       - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
       - ./config/schema-1.0/utf8:/docker-entrypoint-initdb.d:ro
       - /data/dockervols/scan-db:/var/lib/mysql
-      - /data/scan-imglib:/imglib
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: symbiota
@@ -45,7 +46,10 @@ services:
   solr:
     build: ./docker/solr
     container_name: scan-solr
+    environment:
+      SOLR_JAVA_MEM: "-Xms8g -Xmx8g"
     volumes:
+      - ./docker/solr/solr.in.sh:/opt/solr/bin/solr.in.sh:ro
       - /data/dockervols/scan-solr:/opt/solr/server/solr
     networks:
       - scan
