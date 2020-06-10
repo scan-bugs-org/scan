@@ -70,23 +70,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 						<div style="margin:0px 0px 10px 20px;">
 							<input id="dballcb" name="db[]" class="specobs" value='all' type="checkbox" onclick="selectAll(this);" checked />
 					 		<?php echo $LANG['SELECT_ALL']; ?>
-
-              <!-- Allow expand/collapse all -->
-              <span style="margin-left: 2rem;">
-                <button id="collapse-all" class="img-btn" type="button" onclick="toggleExpandCollapseAll(false);">
-                  <img
-                    src="../images/plus_sm.png"
-                    alt="collapse all"
-                  >
-                </button>
-                <button id="expand-all" class="img-btn hidden" type="button" onclick="toggleExpandCollapseAll(true);">
-                  <img
-                    src="../images/minus_sm.png"
-                    alt="expand all"
-                  >
-                </button>
-              </span>
-              <span>Expand/Collapse All</span>
+              <?php include("./collapseAll.php") ?>
             </div>
 						<?php
 						$collManager->outputFullCollArr($specArr, $catId); 
@@ -105,6 +89,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 						<div style="margin:0px 0px 10px 20px;">
 							<input id="dballspeccb" name="db[]" class="spec" value='allspec' type="checkbox" onclick="selectAll(this);" checked />
 					 		<?php echo $LANG['SELECT_ALL']; ?>
+              <?php include("./collapseAll.php") ?>
 						</div>
 						<?php
 						$collManager->outputFullCollArr($specArr, $catId);
@@ -121,7 +106,8 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 						<div style="margin:0px 0px 10px 20px;">
 							<input id="dballobscb" name="db[]" class="obs" value='allobs' type="checkbox" onclick="selectAll(this);" checked />
 					 		<?php echo $LANG['SELECT_ALL']; ?>
-						</div>
+              <?php include("./collapseAll.php") ?>
+            </div>
 						<?php
 						$collManager->outputFullCollArr($obsArr, $catId);
 						?>
