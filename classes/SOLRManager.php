@@ -132,6 +132,7 @@ class SOLRManager extends OccurrenceManager{
         $solrURL = '';
         $solrURLpre = '';
         $solrURLsuf = '';
+        $bottomLimit = ($pageRequest - 1)*$cntPerPage;
         $this->setSpatial();
         $solrWhere = ($this->qStr?$this->qStr:$this->getSOLRWhere());
         if($pageRequest > 0) $bottomLimit = ($pageRequest - 1)*$cntPerPage;
