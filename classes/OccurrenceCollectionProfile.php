@@ -886,7 +886,7 @@ class OccurrenceCollectionProfile {
 			"WHERE c.collid IN(".$collId.") ";
 		//echo $sql;
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
+		while($r = $rs->fetch_object()) {
 			$returnArr[$r->CollectionName]['collid'] = $r->collid;
 			$returnArr[$r->CollectionName]['CollectionName'] = $r->CollectionName;
 			$returnArr[$r->CollectionName]['recordcnt'] = $r->recordcnt;
