@@ -56,7 +56,7 @@ if(isset($_SESSION['userrights'])){
     $USER_RIGHTS = $_SESSION['userrights'];
 }
 
-$CSS_VERSION = '7';
+$CSS_VERSION = '8';
 if(!isset($CSS_VERSION_LOCAL)) $CSS_VERSION_LOCAL = $CSS_VERSION;
 if(!isset($EML_PROJECT_ADDITIONS)) $EML_PROJECT_ADDITIONS = array();
 $USER_DISPLAY_NAME = (array_key_exists("dn",$PARAMS_ARR)?$PARAMS_ARR["dn"]:"");
