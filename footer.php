@@ -32,7 +32,7 @@
           href="http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1207371"
           target="_blank">
           <img
-            src="<?php echo $CLIENT_ROOT ?>/images/layout/NSF_web_transperent.gif"
+            src="<?php echo $CLIENT_ROOT ?>/images/layout/NSF_4-Color_bitmap_Logo.png"
             alt="The National Science Foundation"
           />
         </a>

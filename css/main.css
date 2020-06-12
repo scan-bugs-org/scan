@@ -320,11 +320,11 @@ ul#hor_dropdown li ul li:hover ul li a:hover {
 .scanfooter .col {
 	flex: 1;
 	text-align: center;
-	padding: 1rem;
 }
 
 .scanfooter .col img {
-	max-width: 100%;
+	max-width: 125px;
+	max-height: 100px;
 }
 
 .img-btn {
