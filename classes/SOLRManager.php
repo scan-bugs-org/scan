@@ -283,6 +283,8 @@ class SOLRManager extends OccurrenceManager{
 
 
     public function translateSOLRGeoCollList($sArr){
+        global $userRights;
+
         $returnArr = Array();
         $collMapper = Array();
         $collMapper["undefined"] = "undefined";
@@ -313,7 +315,7 @@ class SOLRManager extends OccurrenceManager{
                 $latLngStr = $decLat.",".$decLong;
                 $returnArr[$collName][$occId]["latLngStr"] = $latLngStr;
                 $returnArr[$collName][$occId]["collid"] = $collid;
-                $tidcode = strtolower(str_replace(" ","",$tidInterpreted.$k['sciname']));
+                $tidcode = strtolower(str_replace(" ","",$tidInterpreted . (array_key_exists('sciname', $k) ? $k['sciname'] : '')));
                 $tidcode = preg_replace("/[^A-Za-z0-9 ]/","",$tidcode);
                 $returnArr[$collName][$occId]["namestring"] = $this->xmlentities($tidcode);
                 $returnArr[$collName][$occId]["tidinterpreted"] = $tidInterpreted;
@@ -324,13 +326,18 @@ class SOLRManager extends OccurrenceManager{
                 else{
                     $returnArr[$collName][$occId]["family"] = 'undefined';
                 }
-                $returnArr[$collName][$occId]["sciname"] = (isset($k['sciname'])?$k['sciname']:'');
+
+                $returnArr[$collName][$occId]["sciname"] = array_key_exists('sciname', $k) ? $k['sciname'] : '';
                 $returnArr[$collName][$occId]["identifier"] = $this->xmlentities($identifier);
-                $returnArr[$collName][$occId]["institutioncode"] = $this->xmlentities($k['InstitutionCode']);
-                $returnArr[$collName][$occId]["collectioncode"] = $this->xmlentities($k['CollectionCode']);
-                $returnArr[$collName][$occId]["catalognumber"] = $this->xmlentities($k['catalogNumber']);
-                $returnArr[$collName][$occId]["othercatalognumbers"] = $this->xmlentities($k['otherCatalogNumbers']);
                 $returnArr[$collName]["color"] = $color;
+
+                foreach(["InstitutionCode", "CollectionCode", "catalogNumber", "otherCatalogNumbers"] as $reqKey) {
+                   $returnArr[$collName][$occId][strtolower($reqKey)] = $this->xmlentities(array_key_exists($reqKey, $k) ? $k[$reqKey] : '');
+                }
+                // $returnArr[$collName][$occId]["institutioncode"] = $this->xmlentities($k['InstitutionCode']);
+                // $returnArr[$collName][$occId]["collectioncode"] = $this->xmlentities($k['CollectionCode']);
+                // $returnArr[$collName][$occId]["catalognumber"] = $this->xmlentities($k['catalogNumber']);
+                // $returnArr[$collName][$occId]["othercatalognumbers"] = $this->xmlentities(array_key_exists('otherCatalogNumbers', $k) ? $k['otherCatalogNumbers'] : '');
             }
         }
         if(isset($returnArr['undefined'])){
