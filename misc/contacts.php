@@ -39,7 +39,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			<p>For Technical Assistance or Questions:</p>
 			<p>
         Evin Dunn<br>
-        <a href="mailto:emd269@nau.edu">emd269@nau.edu</a><br>
+        <a href="mailto:evin@scan-bugs.org">evin@scan-bugs.org</a><br>
         Northern Arizona University
       </p>
 		</div>
