@@ -1,0 +1,147 @@
+<script>
+  // Global object representing the current state of the form
+  const propertyObj = {};
+  const autocompleteOpts = { minLength: 2, autoFocus: true, delay: 200 };
+
+  function onPropertyChanged(k, v) {
+    // console.log(`"${k}": "${v}"`);
+    if (v !== "") {
+      propertyObj[k] = v;
+    }
+  }
+
+  function getPropertyElement(key, val) {
+    const newRow = document.createElement("tr");
+
+    const newKeyCol = document.createElement("td");
+    const newValCol = document.createElement("td");
+    const newImgCol = document.createElement("td");
+
+    const newKey = document.createElement("input");
+    const newVal = document.createElement("input");
+    const newImg = document.createElement("img");
+
+    newKey.placeholder = "{{ keyPlaceholder | default("Key") }}";
+    newKey.value = key;
+
+    newVal.placeholder = "{{ valuePlaceholder | default("Value") }}";
+    newVal.value = val;
+
+    if (key !== "") {
+      propertyObj[key] = val;
+      newKey.readOnly = true;
+    }
+
+    newImg.src = "../../images/del.png";
+    newImg.alt = "delete row";
+    newImg.onclick = () => {
+      newRow.parentNode.removeChild(newRow);
+      if (Object.keys(propertyObj).includes(newKey.value)) {
+        delete propertyObj[newKey.value];
+      }
+    };
+    newImg.style.cursor = "pointer";
+    newImg.style.width = "0.75em";
+
+    newKey.addEventListener("change", () => onPropertyChanged(newKey.value, newVal.value));
+    newVal.addEventListener("change", () => onPropertyChanged(newKey.value, newVal.value));
+
+    newKey.classList.add("key");
+    newVal.classList.add("value");
+
+    newKeyCol.appendChild(newKey);
+    newValCol.appendChild(newVal);
+    newImgCol.appendChild(newImg);
+
+    newRow.appendChild(newKeyCol);
+    newRow.appendChild(newValCol);
+    newRow.appendChild(newImgCol);
+
+    return newRow;
+  }
+
+  function getEmptyPropertyElement() {
+    return getPropertyElement("", "");
+  }
+
+  function addEmptyRow(newRowsId) {
+    const newRowsContainer = document.getElementById(newRowsId);
+    newRowsContainer.appendChild(getEmptyPropertyElement());
+  }
+
+  function submitForm() {
+    const propertyObjParts = [];
+    let propKeys = Object.keys(propertyObj);
+
+    for (let key of propKeys) {
+      propertyObjParts.push(`"${key}": "${propertyObj[key]}"`);
+    }
+
+    opener.document.fullform.{{ origFormName }}.value = propertyObjParts.join("; ");
+    window.close();
+  }
+
+  window.addEventListener("load", () => {
+    // Resize window to content size
+    const innerText = document.getElementById("fieldset");
+    window.resizeTo(innerText.offsetWidth * 1.25, innerText.offsetHeight * 2);
+
+    {% if keyAutocomplete is defined %}
+    $(".key").autocomplete({ source: "{{ keyAutocomplete }}" }, autocompleteOpts);
+    {% endif %}
+
+    {% if valAutocomplete is defined %}
+    $(".value").autocomplete({ source: "{{ valAutocomplete }}" }, autocompleteOpts);
+    {% endif %}
+  });
+</script>
+<fieldset id="fieldset" style="width:450px;">
+  <legend><b>{{ legend }}</b></legend>
+  <table id="props-tbl">
+    <tbody id="existing-props"></tbody>
+    <tbody id="new-props"></tbody>
+  </table>
+  <div style="margin-top: 1em;">
+    <button id="submitButton" onclick="submitForm();">
+      Update
+    </button>
+    <button id="addRowButton" onclick="addEmptyRow('new-props');">
+      Add row
+    </button>
+  </div>
+</fieldset>
+<script type="text/javascript">
+  let origProps = opener.document.fullform.{{ origFormName }}.value;
+  const existingPropsContainer = document.getElementById("existing-props");
+  const newPropsContainer = document.getElementById("new-props");
+
+  try {
+    let origPropsJSON = {};
+
+    try {
+      origProps = JSON.parse(origProps);
+    } catch (e) {
+      console.log(`Existing props are not JSON: ${e}`);
+    }
+
+    if (typeof origProps === "object") {
+      origPropsJSON = origProps;
+    }
+    else {
+      for (let kv of origProps.split("; ")) {
+        const [k,v] = kv.split(":");
+        origPropsJSON[k.replace(/"/g, "").trim()] = v.replace(/"/g, "").trim();
+      }
+    }
+
+    Object.keys(origPropsJSON).forEach((k) => {
+      existingPropsContainer.appendChild(getPropertyElement(k, origPropsJSON[k]));
+    });
+  } catch(e) {
+    console.error(e);
+    if (origProps !== '') {
+      existingPropsContainer.appendChild(getPropertyElement('{{ defaultPropName }}', origProps));
+    }
+  }
+  newPropsContainer.appendChild(getEmptyPropertyElement());
+</script>

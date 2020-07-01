@@ -1,9 +1,9 @@
 <?php
  //error_reporting(E_ALL);
 include_once('../../config/symbini.php');
-require_once "$SERVER_ROOT/config/twig.php";
+require_once("$SERVER_ROOT/config/twig.php");
 ?>
-<html>
+<html lang="en">
 <head>
 	<meta charset="<?php echo (isset($charset) ? $charset : "utf-8"); ?>">
 	<title>Associated Species Entry Aid</title>
@@ -55,7 +55,7 @@ require_once "$SERVER_ROOT/config/twig.php";
 	<!-- This is inner text! -->
 	<div id="innertext" style="background-color:white;">
     <?php
-    echo $twig->render("jsonEditor.twig", [
+    echo $twig->render("assocSpecEditor.twig", [
       "legend" =>  (defined('ASSOCIATEDTAXALABEL') ? ASSOCIATEDTAXALABEL: 'Associated Taxa' ) . ' Editor',
       "origFormName" => "associatedtaxa",
       "defaultPropName" => "interactsWith",
