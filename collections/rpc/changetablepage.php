@@ -3,6 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/collections/list.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceListManager.php');
 include_once($SERVER_ROOT.'/classes/SOLRManager.php');
+require_once("./getNonSOLRFields.php");
 
 $stArrCollJson = $_REQUEST["jsoncollstarr"];
 $stArrSearchJson = $_REQUEST["starr"];
@@ -65,11 +66,16 @@ if($recArr){
     $recordListHtml .= '<th>Collection</th>';
     $recordListHtml .= '<th>Catalog Number</th>';
     $recordListHtml .= '<th>Family</th>';
+    $recordListHtml .= '<th>Genus</th>';
     $recordListHtml .= '<th>Scientific Name</th>';
+    $recordListHtml .= '<th>Specific Epithet</th>';
     $recordListHtml .= '<th>Country</th>';
     $recordListHtml .= '<th>State/Province</th>';
     $recordListHtml .= '<th>County</th>';
     $recordListHtml .= '<th>Locality</th>';
+    $recordListHtml .= '<th>Municipality</th>';
+    $recordListHtml .= '<th>Latitude</th>';
+    $recordListHtml .= '<th>Longitude</th>';
     $recordListHtml .= '<th>Habitat</th>';
     if($QUICK_HOST_ENTRY_IS_ACTIVE) $recordListHtml .= '<th>Host</th>';
     $recordListHtml .= '<th>Elevation</th>';
@@ -85,6 +91,9 @@ if($recArr){
     $recordListHtml .= '</tr>';
     $recCnt = 0;
     foreach($recArr as $id => $occArr){
+        $extraFields = getNonSOLRFields($id);
+        $occArr = array_merge($occArr, $extraFields);
+
         $isEditor = false;
         if($SYMB_UID && ($IS_ADMIN
                 || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($occArr['collid'],$USER_RIGHTS['CollAdmin']))
@@ -109,11 +118,16 @@ if($recArr){
         $recordListHtml .= '<td>'.$collection.'</td>'."\n";
         $recordListHtml .= '<td>'.$occArr['accession'].'</td>'."\n";
         $recordListHtml .= '<td>'.$occArr['family'].'</td>'."\n";
+        $recordListHtml .= '<td>' . $occArr['genus'] .'</td>'."\n";
         $recordListHtml .= '<td>'.$occArr['sciname'].($occArr['author']?" ".$occArr['author']:"").'</td>'."\n";
+        $recordListHtml .= '<td>'. $occArr['specificEpithet'] .'</td>'."\n";
         $recordListHtml .= '<td>'.$occArr['country'].'</td>'."\n";
         $recordListHtml .= '<td>'.$occArr['state'].'</td>'."\n";
         $recordListHtml .= '<td>'.$occArr['county'].'</td>'."\n";
         $recordListHtml .= '<td>'.((strlen($occArr['locality'])>80)?substr($occArr['locality'],0,80).'...':$occArr['locality']).'</td>'."\n";
+        $recordListHtml .= '<td>'.$occArr['municipality'].'</td>'."\n";
+        $recordListHtml .= '<td>'.$occArr['decimalLatitude'].'</td>'."\n";
+        $recordListHtml .= '<td>'.$occArr['decimalLongitude'].'</td>'."\n";
         $recordListHtml .= '<td>'.((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']).'</td>'."\n";
         if($QUICK_HOST_ENTRY_IS_ACTIVE){
             if(array_key_exists('assochost',$occArr)){
