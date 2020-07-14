@@ -16,14 +16,11 @@ RUN apt-get update && \
     && apt-get clean; rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN docker-php-ext-install \
+        bcmath \
         gd \
         mysqli \
         pgsql \
-        zip \
-    && pecl install redis yaml \
-    && docker-php-ext-enable \
-        redis \
-        yaml
+        zip
 
 RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 

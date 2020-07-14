@@ -2,18 +2,33 @@
 
 include_once('../../config/dbconnection.php');
 
+$NON_SOLR_FIELDS = [
+    "genus",
+    "specificEpithet",
+    "locality",
+    "municipality",
+    "decimalLatitude",
+    "decimalLongitude"
+];
+
+$NON_SOLR_FIELDS_READABLE = [
+    "Genus" => "genus",
+    "Specific Epithet" => "specificEpithet",
+    "Locality" => "locality",
+    "Municipality" => "municipality",
+    "Latitude" => "decimalLatitude",
+    "Longitude" => "decimalLongitude"
+];
+
 function getNonSOLRFields($occid) {
+    global $NON_SOLR_FIELDS;
     $RANKID_GENUS = 180;
 
     $con = MySQLiConnectionFactory::getCon("readonly");
-    $result = [
-        "genus" => "",
-        "specificEpithet" => "",
-        "locality" => "",
-        "municipality" => "",
-        "decimalLatitude" => "",
-        "decimalLongitude" => ""
-    ];
+    $result = [];
+    foreach ($NON_SOLR_FIELDS as $f) {
+        $result[$f] = "";
+    }
 
     try {
         $sql = <<<EOF

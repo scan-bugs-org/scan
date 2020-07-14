@@ -13,6 +13,9 @@ $sortField1 = $_REQUEST['sortfield1'];
 $sortField2 = $_REQUEST['sortfield2'];
 $sortOrder = $_REQUEST['sortorder'];
 
+$nonSolrSort1 = array_key_exists($sortField1, $NON_SOLR_FIELDS_READABLE);
+$nonSolrSort2 = array_key_exists($sortField2, $NON_SOLR_FIELDS_READABLE);
+
 $stArrSearchJson = str_replace("%apos;","'",$stArrSearchJson);
 $collStArr = json_decode($stArrCollJson, true);
 $searchStArr = json_decode($stArrSearchJson, true);
@@ -23,15 +26,85 @@ if($collStArr && !$searchStArr) $stArr = $collStArr;
 if($SOLR_MODE){
     $collManager = new SOLRManager();
     $collManager->setSearchTermsArr($stArr);
-    $collManager->setSorting($sortField1,$sortField2,$sortOrder);
+
+    if (!($nonSolrSort1 || $nonSolrSort2)) {
+        $collManager->setSorting($sortField1,$sortField2,$sortOrder);
+    }
+
     $solrArr = $collManager->getRecordArr($occIndex,1000);
     $recArr = $collManager->translateSOLRRecList($solrArr);
 }
 else{
     $collManager = new OccurrenceListManager(false);
     $collManager->setSearchTermsArr($stArr);
-    $collManager->setSorting($sortField1,$sortField2,$sortOrder);
+
+    if (!($nonSolrSort1 || $nonSolrSort2)) {
+        $collManager->setSorting($sortField1, $sortField2, $sortOrder);
+    }
+
     $recArr = $collManager->getRecordArr($occIndex,1000);
+}
+
+// Add non-solr fields
+foreach ($recArr as $occid => $record) {
+    $extraFields = getNonSOLRFields($occid);
+    $record = array_merge($record, $extraFields);
+    $recArr[$occid] = $record;
+}
+
+// Sort by non-SOLR fields
+if ($nonSolrSort1) {
+    foreach ([$sortField1, $sortField2] as $sortField) {
+        global $NON_SOLR_FIELDS_READABLE;
+
+        if (!array_key_exists($sortField, $NON_SOLR_FIELDS_READABLE)) {
+            continue;
+        }
+
+        $sortField = $NON_SOLR_FIELDS_READABLE[$sortField];
+
+        usort($recArr, function ($a, $b) {
+            global $sortOrder;
+            global $sortField;
+
+            $sortFieldA = (
+                array_key_exists($sortField, $a) ?
+                $a[$sortField] :
+                ''
+            );
+
+            $sortFieldB = (
+            array_key_exists($sortField, $b) ?
+                $b[$sortField] :
+                ''
+            );
+
+            // Put empty values at the bottom
+            if ($sortFieldA === '') {
+                return 1;
+            }
+
+            if ($sortFieldB === '') {
+                return -1;
+            }
+
+            if (is_numeric($sortFieldA) && is_numeric($sortFieldB)) {
+                $sortFieldA = floatval($sortFieldA);
+                $sortFieldB = floatval($sortFieldB);
+
+                return bccomp($sortFieldA, $sortFieldB);
+            }
+            else {
+                $result = strcmp($sortFieldA, $sortFieldB);
+            }
+
+            if ($sortOrder === 'desc') {
+                $result *= -1;
+            }
+
+            return $result;
+        });
+    }
 }
 
 $targetClid = $collManager->getSearchTerm("targetclid");
@@ -90,10 +163,8 @@ if($recArr){
     $recordListHtml .= '<th>Dynamic Properties</th>';
     $recordListHtml .= '</tr>';
     $recCnt = 0;
-    foreach($recArr as $id => $occArr){
-        $extraFields = getNonSOLRFields($id);
-        $occArr = array_merge($occArr, $extraFields);
 
+    foreach($recArr as $id => $occArr){
         $isEditor = false;
         if($SYMB_UID && ($IS_ADMIN
                 || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($occArr['collid'],$USER_RIGHTS['CollAdmin']))

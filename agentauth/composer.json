@@ -1,6 +1,7 @@
 {
   "require": {
     "silex/silex": "~1.1",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-bcmath": "*"
   }
 }
